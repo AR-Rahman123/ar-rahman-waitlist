@@ -1,0 +1,150 @@
+Update the following:
+
+Embed the following Youtube link on the page: https://youtu.be/f1pqhZO3Lik?si=ja1kjRrIDW_N3mKg
+
+Remove the Watch Demo button
+
+Match colour scheme to the original link given
+
+When user clicks 'Join Waitlist' have a boxes appear where user puts in Full Name, email address and a free text box for entering in role.
+
+Then, we need the questions:
+
+What is your age?
+
+18-25
+
+26-35
+
+36-45
+
+46-55
+
+56-65
+
+65+
+
+How often do you pray Salah?
+5 times daily
+
+3-4 times daily
+
+1-2 times daily
+
+Weekly
+
+Occasionally
+
+Rarely
+
+How would you rate your understanding of Quranic Arabic?
+Fluent
+
+Good
+
+Basic
+
+Very limited
+
+None
+
+Have you ever found it difficult to understand the meaning of what you're reciting in prayer?
+
+Always
+
+Often
+
+Sometimes
+
+Rarely
+
+Never
+
+How important is it for you to better understand Quran during prayer?
+Extremely important
+
+Very important
+
+Moderately important
+
+Slightly important
+
+Not important
+
+What's your biggest struggle with Islamic learning?
+Understanding Arabic
+
+Finding time to study
+
+Lack of good resources
+
+Staying consistent
+
+Finding qualified teachers
+
+Connecting theory to practice
+
+Other
+
+Would you be interested in using an AR (Augmented Reality) headset that are designed like normal glasses if it enhances your prayer and Islamic learning experience during prayer?
+Very interested
+
+Somewhat interested
+
+Neutral
+
+Not very interested
+
+Not interested at all
+
+Which features would be most valuable to you in an AR Islamic tool? (Choose up to 3)
+Live Quran translation during prayer
+
+Arabic pronunciation guidance
+
+Prayer direction (Qibla) indicator
+
+Islamic calendar and prayer times
+
+Hadith and Islamic knowledge overlay
+
+Tajweed correction
+
+Islamic history visualization
+
+Community prayer features
+
+(Optional) If this product were available in the next 12 months, how likely would you be to try it?
+Extremely likely
+
+Very likely
+
+Moderately likely
+
+Slightly likely
+
+Not likely at all
+
+Help Us Understand You Better Question 11 of 13
+(Optional) Is there anything else that would make this more useful or appealing to you?
+
+-Help Us Understand You Better Question 12 of 13
+
+Would you be willing to be contacted to partake in a more detailed interview to understand your specific requirements?
+
+Yes, I'd be happy to help
+
+Maybe, depending on timing
+
+No, thank you
+
+Help Us Understand You Better Question 13 of 13
+Would you like to see the Angel investor presentation for this business?
+
+Yes, I'm interested
+
+Maybe later
+
+No, thank you
+
+Have a progress bar whilst progressing through each question
