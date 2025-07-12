@@ -36,9 +36,9 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Frontend Components
-1. **Landing Page** (`/`) - Main marketing page with hero section, YouTube video embed, and waitlist CTA
+1. **Landing Page** (`/`) - Main marketing page with hero section, local video player, and waitlist CTA
 2. **Waitlist Form** - Multi-step form collecting user demographics and preferences
-3. **Admin Dashboard** (`/admin`) - Analytics and waitlist management interface
+3. **Admin Dashboard** (`/admin`) - ScoreApp-style analytics with multi-select deletion, CSV export, and visual charts
 4. **UI Components** - Comprehensive shadcn/ui component library
 
 ### Backend Components
@@ -109,3 +109,20 @@ Preferred communication style: Simple, everyday language.
 - Real-time error overlay
 - Replit integration for cloud development
 - TypeScript strict mode for type safety
+
+## Recent Changes
+
+### Video Player Implementation (July 12, 2025)
+- Replaced YouTube iframe with local HTML5 video player
+- Eliminated YouTube ads and external navigation
+- Added custom video controls with disabled downloads and right-click protection
+- Configured server to serve video files from `/public/video/` directory
+- Enhanced user experience with custom poster image and fallback content
+- Added professional video overlay with branding
+
+### Analytics Dashboard Enhancements (Previous)
+- Resolved critical deployment/caching issues that were preventing dashboard updates from showing
+- Implemented complete visual analytics dashboard with pie charts, donut charts, and bar charts using recharts library
+- Added ScoreApp-style summary metrics including Total Leads, Daily Leads, Number of Visitors, and Completion Rate
+- Enhanced response management with multi-select functionality, bulk delete operations, and confirmation dialogs
+- Integrated CSV data export feature for complete dataset downloads with safety confirmations

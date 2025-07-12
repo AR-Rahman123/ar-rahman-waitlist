@@ -68,15 +68,43 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-spiritual-dark mb-4">Experience AR Prayer Technology</h2>
             <p className="text-gray-600 text-lg">See how AR technology transforms your prayer experience</p>
           </div>
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl">
-            <iframe
-              src="https://www.youtube.com/embed/f1pqhZO3Lik?si=ja1kjRrIDW_N3mKg"
-              title="AR Rahman Prayer Experience"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="w-full h-full"
-            />
+          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-gray-900">
+            <video
+              className="w-full h-full object-cover"
+              controls
+              preload="metadata"
+              controlsList="nodownload"
+              disablePictureInPicture
+              onContextMenu={(e) => e.preventDefault()}
+              poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2NzUiIHZpZXdCb3g9IjAgMCAxMjAwIDY3NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjc1IiBmaWxsPSIjMUYyOTM3Ii8+CjxjaXJjbGUgY3g9IjYwMCIgY3k9IjMzNy41IiByPSI2MCIgZmlsbD0iIzM5ODNGNCIvPgo8cGF0aCBkPSJNNTgwIDMwN1Y3NjhMMTE5MCAzMzEuNUw1OCAzMDdaIiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSI2MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOUNBM0FGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BUiBSYWhtYW4gUHJheWVyIEV4cGVyaWVuY2U8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iNDgwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM2Qjc0ODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNsaWNrIHRvIHBsYXkgdmlkZW88L3RleHQ+Cjwvc3ZnPgo="
+            >
+              <source src="/video/ar-rahman-demo.mp4" type="video/mp4" />
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-spiritual-dark to-gray-800">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg hover:bg-blue-600 transition-colors cursor-pointer">
+                    <svg className="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">AR Rahman Prayer Experience</h3>
+                  <p className="text-gray-300 mb-2">Your browser doesn't support video playback.</p>
+                  <p className="text-sm text-gray-400">Please use a modern browser to view this content.</p>
+                  <div className="mt-6 max-w-md mx-auto">
+                    <p className="text-xs text-gray-500">
+                      For the best experience, we recommend using Chrome, Firefox, Safari, or Edge.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </video>
+            
+            {/* Custom Video Overlay for Better UX */}
+            <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 rounded-lg p-3 text-white text-sm opacity-0 hover:opacity-100 transition-opacity">
+              <div className="flex items-center justify-between">
+                <span>AR Rahman - Experience the Future of Prayer</span>
+                <span className="text-xs text-gray-300">HD Quality</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
