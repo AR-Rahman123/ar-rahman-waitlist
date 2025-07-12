@@ -1,4 +1,5 @@
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
+import { TestCharts } from "@/components/test-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -37,6 +38,7 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        <TestCharts />
         <AnalyticsDashboard />
       </main>
     </div>
