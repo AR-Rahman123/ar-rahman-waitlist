@@ -9,25 +9,18 @@ const data = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
 export function TestCharts() {
+  console.log("TestCharts component rendering");
+  console.log("Data:", data);
+  
   return (
-    <div className="h-64 w-full">
-      <h3>Test Chart</h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
+    <div className="h-64 w-full border-2 border-red-500 p-4">
+      <h3 className="text-xl font-bold text-red-600">Test Chart - Should be visible</h3>
+      <div className="bg-gray-200 p-4">
+        <p>If you can see this text, React is working</p>
+        <div className="h-48 bg-blue-100">
+          Chart should be here
+        </div>
+      </div>
     </div>
   );
 }
