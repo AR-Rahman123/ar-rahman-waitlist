@@ -221,30 +221,110 @@ export function AnalyticsDashboard() {
         </CardContent>
       </Card>
 
-      {/* Recent Responses */}
+      {/* All Waitlist Responses with Detailed View */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Recent Responses</CardTitle>
+          <CardTitle className="text-lg">All Waitlist Responses ({responses?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {responses?.slice(0, 5).map((response: any) => (
-              <div key={response.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">{response.fullName}</p>
-                  <p className="text-sm text-gray-600">{response.email}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(response.submittedAt).toLocaleString()}
-                  </p>
+          <div className="space-y-6">
+            {responses?.map((response: any) => (
+              <div key={response.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                {/* Header Section */}
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-semibold text-spiritual-dark">{response.fullName}</h4>
+                    <p className="text-sm text-gray-600">{response.email}</p>
+                    <p className="text-xs text-gray-500">
+                      Submitted: {new Date(response.submittedAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {response.age && <Badge variant="outline">{response.age}</Badge>}
+                    {response.role && <Badge variant="secondary">{response.role}</Badge>}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant="outline">{response.age || 'N/A'}</Badge>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatLabel(response.arInterest || 'unknown')}
-                  </p>
+
+                {/* Prayer & Learning Profile */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-blue-800 mb-1">Prayer Frequency</p>
+                    <p className="text-sm text-blue-700">{formatLabel(response.prayerFrequency || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-emerald-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-emerald-800 mb-1">Arabic Understanding</p>
+                    <p className="text-sm text-emerald-700">{formatLabel(response.arabicUnderstanding || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-amber-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-amber-800 mb-1">Understanding Difficulty</p>
+                    <p className="text-sm text-amber-700">{formatLabel(response.understandingDifficulty || 'Not specified')}</p>
+                  </div>
                 </div>
+
+                {/* Learning & Technology Interest */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-purple-800 mb-1">Learning Struggle</p>
+                    <p className="text-sm text-purple-700">{formatLabel(response.learningStruggle || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-indigo-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-indigo-800 mb-1">AR Technology Impact</p>
+                    <p className="text-sm text-indigo-700">{formatLabel(response.arInterest || 'Not specified')}</p>
+                  </div>
+                </div>
+
+                {/* Features Requested */}
+                {response.features && response.features.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-gray-700 mb-2">Requested Features:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {response.features.map((feature: string, index: number) => (
+                        <Badge key={index} className="bg-spiritual-blue text-white">
+                          {formatLabel(feature)}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Insights */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  {response.importance && (
+                    <div>
+                      <span className="font-medium text-gray-600">Importance:</span>
+                      <p className="text-gray-500">{formatLabel(response.importance)}</p>
+                    </div>
+                  )}
+                  {response.likelihood && (
+                    <div>
+                      <span className="font-medium text-gray-600">Likelihood to Try:</span>
+                      <p className="text-gray-500">{formatLabel(response.likelihood)}</p>
+                    </div>
+                  )}
+                  {response.interviewWillingness && (
+                    <div>
+                      <span className="font-medium text-gray-600">Interview Willingness:</span>
+                      <p className="text-gray-500">{formatLabel(response.interviewWillingness)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Feedback */}
+                {response.additionalFeedback && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Additional Feedback:</p>
+                    <p className="text-sm text-gray-600 italic">"{response.additionalFeedback}"</p>
+                  </div>
+                )}
               </div>
             ))}
+            
+            {(!responses || responses.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <p>No waitlist responses yet.</p>
+                <p className="text-sm">Responses will appear here as users complete the waitlist form.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
