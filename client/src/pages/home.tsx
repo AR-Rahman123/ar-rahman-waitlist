@@ -6,6 +6,7 @@ import { WaitlistForm } from "@/components/waitlist-form";
 import { Box, Users, Target, Anchor, Heart, Star, Rocket } from "lucide-react";
 
 export default function Home() {
+  console.log("Home component rendering");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: waitlistCount } = useQuery({
@@ -37,6 +38,9 @@ export default function Home() {
       {/* Hero Section */}
       <section className="spiritual-gradient text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="bg-red-600 text-white p-4 mb-6 rounded-lg">
+            <p className="text-xl font-bold">🔴 TEST: If you see this red box, updates are working!</p>
+          </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Experience the Qur'an<br />
             <span className="text-blue-200">Like Never Before</span>
