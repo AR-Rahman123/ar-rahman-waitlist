@@ -12,21 +12,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const response = await storage.createWaitlistResponse(validatedData);
       
-      // Send welcome email to user
-      try {
-        await sendWelcomeEmail(response.email, response.fullName);
-      } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError);
-      }
+      // Send welcome email to user (async, don't block response)
+      sendWelcomeEmail(response.email, response.firstName)
+        .then(success => {
+          if (success) {
+            console.log(`✅ Welcome email sent to ${response.email}`);
+          } else {
+            console.log(`❌ Failed to send welcome email to ${response.email}`);
+          }
+        })
+        .catch(error => {
+          console.error(`❌ Welcome email error for ${response.email}:`, error);
+        });
       
-      // Send admin notification
-      try {
-        await sendAdminNotification(response);
-      } catch (emailError) {
-        console.error("Failed to send admin notification:", emailError);
-      }
+      // Send admin notification (async, don't block response)
+      sendAdminNotification(response)
+        .then(success => {
+          if (success) {
+            console.log(`✅ Admin notification sent for ${response.firstName} ${response.lastName}`);
+          } else {
+            console.log(`❌ Failed to send admin notification for ${response.firstName} ${response.lastName}`);
+          }
+        })
+        .catch(error => {
+          console.error(`❌ Admin notification error for ${response.firstName} ${response.lastName}:`, error);
+        });
       
-      res.json({ success: true, message: "Successfully joined waitlist!" });
+      res.json({ success: true, message: "Successfully joined waitlist! Check your email for confirmation." });
     } catch (error) {
       console.error("Error creating waitlist response:", error);
       res.status(400).json({ 
