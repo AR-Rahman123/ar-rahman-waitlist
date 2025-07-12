@@ -1,9 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, Target, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, TrendingUp, Target, Heart, Trash2 } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export function AnalyticsDashboard() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: analytics, isLoading } = useQuery({
     queryKey: ['/api/waitlist/analytics'],
   });
@@ -11,6 +18,40 @@ export function AnalyticsDashboard() {
   const { data: responses } = useQuery({
     queryKey: ['/api/waitlist/responses'],
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/waitlist/${id}`, null);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/responses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/count'] });
+      toast({
+        title: "Success",
+        description: "Response deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete response",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const COLORS = {
+    spiritual_blue: '#3B82F6',
+    spiritual_emerald: '#10B981',
+    spiritual_amber: '#F59E0B',
+    spiritual_purple: '#8B5CF6',
+    spiritual_red: '#EF4444',
+    spiritual_cyan: '#06B6D4',
+    spiritual_pink: '#EC4899',
+    spiritual_orange: '#F97316',
+  };
 
   if (isLoading) {
     return (
@@ -46,6 +87,21 @@ export function AnalyticsDashboard() {
   const formatLabel = (key: string) => {
     return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
+
+  // Transform data for charts
+  const getChartData = (distribution: Record<string, number>) => {
+    return Object.entries(distribution || {}).map(([key, value], index) => ({
+      name: formatLabel(key),
+      value,
+      color: Object.values(COLORS)[index % Object.values(COLORS).length]
+    }));
+  };
+
+  const ageChartData = getChartData(analytics?.ageDistribution || {});
+  const prayerChartData = getChartData(analytics?.prayerFrequencyDistribution || {});
+  const arabicChartData = getChartData(analytics?.arabicUnderstandingDistribution || {});
+  const arInterestChartData = getChartData(analytics?.arInterestDistribution || {});
+  const featuresChartData = getChartData(analytics?.featuresDistribution || {});
 
   return (
     <div className="space-y-6">
@@ -99,104 +155,150 @@ export function AnalyticsDashboard() {
         </Card>
       </div>
 
-      {/* Distribution Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Age Distribution */}
+      {/* Visual Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Age Distribution Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Age Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(analytics.ageDistribution || {}).map(([age, count]) => (
-                <div key={age} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{age}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-spiritual-blue h-2 rounded-full"
-                        style={{ width: `${(count / analytics.totalResponses) * 100}%` }}
-                      />
-                    </div>
-                    <Badge variant="secondary">{count}</Badge>
-                  </div>
-                </div>
-              ))}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ageChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {ageChartData.map((entry, index) => (
+                      <Cell key={`age-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Prayer Frequency */}
+        {/* Prayer Frequency Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Prayer Frequency</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(analytics.prayerFrequencyDistribution || {}).map(([freq, count]) => (
-                <div key={freq} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{formatLabel(freq)}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-spiritual-emerald h-2 rounded-full"
-                        style={{ width: `${(count / analytics.totalResponses) * 100}%` }}
-                      />
-                    </div>
-                    <Badge variant="secondary">{count}</Badge>
-                  </div>
-                </div>
-              ))}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={prayerChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {prayerChartData.map((entry, index) => (
+                      <Cell key={`prayer-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Arabic Understanding */}
+        {/* Arabic Understanding Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Arabic Understanding</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(analytics.arabicUnderstandingDistribution || {}).map(([level, count]) => (
-                <div key={level} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{formatLabel(level)}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-spiritual-amber h-2 rounded-full"
-                        style={{ width: `${(count / analytics.totalResponses) * 100}%` }}
-                      />
-                    </div>
-                    <Badge variant="secondary">{count}</Badge>
-                  </div>
-                </div>
-              ))}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={arabicChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {arabicChartData.map((entry, index) => (
+                      <Cell key={`arabic-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* AR Interest */}
+        {/* AR Interest Donut Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">AR Interest Level</CardTitle>
+            <CardTitle className="text-lg">AR Technology Impact</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(analytics.arInterestDistribution || {}).map(([interest, count]) => (
-                <div key={interest} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{formatLabel(interest)}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-purple-600 h-2 rounded-full"
-                        style={{ width: `${(count / analytics.totalResponses) * 100}%` }}
-                      />
-                    </div>
-                    <Badge variant="secondary">{count}</Badge>
-                  </div>
-                </div>
-              ))}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={arInterestChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {arInterestChartData.map((entry, index) => (
+                      <Cell key={`ar-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Features Bar Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Most Requested Features</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={featuresChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    fontSize={12}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill={COLORS.spiritual_blue} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -239,9 +341,20 @@ export function AnalyticsDashboard() {
                       Submitted: {new Date(response.submittedAt).toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {response.age && <Badge variant="outline">{response.age}</Badge>}
-                    {response.role && <Badge variant="secondary">{response.role}</Badge>}
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {response.age && <Badge variant="outline">{response.age}</Badge>}
+                      {response.role && <Badge variant="secondary">{response.role}</Badge>}
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteMutation.mutate(response.id)}
+                      disabled={deleteMutation.isPending}
+                      className="ml-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
 

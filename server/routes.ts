@@ -78,6 +78,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete waitlist response
+  app.delete("/api/waitlist/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid ID" 
+        });
+      }
+
+      const success = await storage.deleteWaitlistResponse(id);
+      if (success) {
+        res.json({ success: true, message: "Response deleted successfully" });
+      } else {
+        res.status(500).json({ 
+          success: false, 
+          message: "Failed to delete response" 
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting waitlist response:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to delete response" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -9,6 +9,7 @@ export interface IStorage {
   createWaitlistResponse(response: InsertWaitlistResponse): Promise<WaitlistResponse>;
   getWaitlistResponses(): Promise<WaitlistResponse[]>;
   getWaitlistResponsesCount(): Promise<number>;
+  deleteWaitlistResponse(id: number): Promise<boolean>;
   getWaitlistAnalytics(): Promise<{
     totalResponses: number;
     ageDistribution: Record<string, number>;
@@ -58,6 +59,18 @@ export class DatabaseStorage implements IStorage {
       .select({ count: count() })
       .from(waitlistResponses);
     return result.count;
+  }
+
+  async deleteWaitlistResponse(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(waitlistResponses)
+        .where(eq(waitlistResponses.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting waitlist response:", error);
+      return false;
+    }
   }
 
   async getWaitlistAnalytics(): Promise<{
