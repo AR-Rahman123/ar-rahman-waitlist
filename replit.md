@@ -116,9 +116,10 @@ Preferred communication style: Simple, everyday language.
 - Replaced YouTube iframe with local HTML5 video player
 - Eliminated YouTube ads and external navigation
 - Added custom video controls with disabled downloads and right-click protection
-- Configured server to serve video files from `/public/video/` directory
+- Configured Vimeo hosting for 100MB+ video files with direct MP4 streaming
 - Enhanced user experience with custom poster image and fallback content
 - Added professional video overlay with branding
+- Resolved Google Drive download limitations by using Vimeo as CDN
 
 ### Analytics Dashboard Enhancements (Previous)
 - Resolved critical deployment/caching issues that were preventing dashboard updates from showing
