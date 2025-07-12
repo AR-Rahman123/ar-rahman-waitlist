@@ -78,9 +78,8 @@ export default function Home() {
               onContextMenu={(e) => e.preventDefault()}
               poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2NzUiIHZpZXdCb3g9IjAgMCAxMjAwIDY3NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjc1IiBmaWxsPSIjMUYyOTM3Ii8+CjxjaXJjbGUgY3g9IjYwMCIgY3k9IjMzNy41IiByPSI2MCIgZmlsbD0iIzM5ODNGNCIvPgo8cGF0aCBkPSJNNTgwIDMwN1Y3NjhMMTE5MCAzMzEuNUw1OCAzMDdaIiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSI2MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOUNBM0FGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BUiBSYWhtYW4gUHJheWVyIEV4cGVyaWVuY2U8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iNDgwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM2Qjc0ODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNsaWNrIHRvIHBsYXkgdmlkZW88L3RleHQ+Cjwvc3ZnPgo="
             >
+              <source src="https://drive.google.com/uc?export=download&id=1F4_ox7EXErC0piPmQgCgPpZQbHF5RCkl" type="video/mp4" />
               <source src="/video/ar-rahman-demo.mp4" type="video/mp4" />
-              {/* Fallback for external hosting */}
-              <source src="https://your-external-host.com/ar-rahman-demo.mp4" type="video/mp4" />
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-spiritual-dark to-gray-800">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg hover:bg-blue-600 transition-colors cursor-pointer">
