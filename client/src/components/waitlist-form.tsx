@@ -125,7 +125,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
             <div className="w-20 h-20 bg-spiritual-emerald rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="text-white text-3xl" />
             </div>
-            <h3 className="text-3xl font-bold text-spiritual-dark mb-4">Barakallahu feeki!</h3>
+            <h3 className="text-3xl font-bold text-spiritual-dark mb-4">BarakAllahu feekum! بارك الله فيكم</h3>
             <p className="text-xl text-gray-600 mb-8">
               Thank you for joining our waitlist. You'll receive a confirmation email shortly, and we'll keep you updated on our progress.
             </p>
@@ -356,8 +356,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
             {currentStep === 8 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Would you be interested in using an AR headset that are designed like normal glasses if it enhances your prayer and Islamic learning experience?</h3>
-                  <p className="text-gray-600 mb-8">Help us understand your comfort level with AR technology</p>
+                  <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Imagine you had an AR (Augmented Reality) headset that was designed like normal glasses and could be used to enhance your prayer experience, what would this mean to you?</h3>
+                  <p className="text-gray-600 mb-8">Help us understand the personal impact this technology could have</p>
                 </div>
                 
                 <RadioGroup
@@ -365,15 +365,16 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
                   onValueChange={(value) => form.setValue("arInterest", value)}
                 >
                   {[
-                    "Very interested",
-                    "Somewhat interested",
-                    "Neutral",
-                    "Not very interested",
-                    "Not interested at all"
-                  ].map((level) => (
-                    <div key={level} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50">
-                      <RadioGroupItem value={level.toLowerCase().replace(" ", "_")} id={level} />
-                      <Label htmlFor={level} className="flex-1 cursor-pointer">{level}</Label>
+                    { value: "life_changing", label: "Life-changing - it would transform my spiritual practice completely" },
+                    { value: "very_meaningful", label: "Very meaningful - it would significantly improve my prayer experience" },
+                    { value: "helpful_addition", label: "A helpful addition - it would enhance my understanding" },
+                    { value: "interesting_but_cautious", label: "Interesting but I'd be cautious about using technology during prayer" },
+                    { value: "prefer_traditional", label: "I prefer traditional prayer methods without technology" },
+                    { value: "unsure", label: "I'm unsure how I'd feel about it" }
+                  ].map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value} className="flex-1 cursor-pointer">{option.label}</Label>
                     </div>
                   ))}
                 </RadioGroup>

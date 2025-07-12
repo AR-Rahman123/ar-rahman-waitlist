@@ -34,7 +34,7 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
             <h2 style="color: #1F2937; font-size: 24px; margin-bottom: 20px;">Assalamu Alaikum ${name}!</h2>
             
             <p style="color: #4B5563; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-              Barakallahu feeki for joining our waitlist! We're thrilled to have you as part of our community working towards revolutionizing the prayer experience through Augmented Reality.
+              BarakAllahu feekum (بارك الله فيكم) for joining our waitlist! We're thrilled to have you as part of our community working towards revolutionizing the prayer experience through Augmented Reality.
             </p>
             
             <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 20px 0;">
