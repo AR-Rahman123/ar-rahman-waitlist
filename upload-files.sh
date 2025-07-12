@@ -1,36 +1,34 @@
 #!/bin/bash
 
-# Create a clean directory for upload
-mkdir -p /tmp/github-upload
-cd /tmp/github-upload
+# Script to prepare files for clean upload
+echo "Preparing files for GitHub upload..."
 
-# Copy essential files (excluding large directories)
-cp -r /home/runner/workspace/client .
-cp -r /home/runner/workspace/server .
-cp -r /home/runner/workspace/shared .
-cp -r /home/runner/workspace/.github .
-cp /home/runner/workspace/package.json .
-cp /home/runner/workspace/package-lock.json .
-cp /home/runner/workspace/vite.config.ts .
-cp /home/runner/workspace/tsconfig.json .
-cp /home/runner/workspace/tailwind.config.ts .
-cp /home/runner/workspace/postcss.config.js .
-cp /home/runner/workspace/components.json .
-cp /home/runner/workspace/drizzle.config.ts .
-cp /home/runner/workspace/netlify.toml .
-cp /home/runner/workspace/README.md .
-cp /home/runner/workspace/.gitignore .
-cp /home/runner/workspace/_redirects .
+# Create clean directory
+mkdir -p ar-rahman-clean
 
-# Create public directory structure
-mkdir -p public/video
-cp /home/runner/workspace/public/video/README.md public/video/ 2>/dev/null || echo "# Video Files" > public/video/README.md
+# Copy essential files only
+cp -r client/ ar-rahman-clean/
+cp -r server/ ar-rahman-clean/
+cp -r shared/ ar-rahman-clean/
+cp package.json ar-rahman-clean/
+cp package-lock.json ar-rahman-clean/
+cp netlify.toml ar-rahman-clean/
+cp tsconfig.json ar-rahman-clean/
+cp tailwind.config.ts ar-rahman-clean/
+cp vite.config.ts ar-rahman-clean/
+cp postcss.config.js ar-rahman-clean/
+cp components.json ar-rahman-clean/
+cp drizzle.config.ts ar-rahman-clean/
+cp README.md ar-rahman-clean/
 
-echo "Files prepared for upload in /tmp/github-upload"
-echo "Do NOT include:"
-echo "- node_modules/ (too large)"
-echo "- dist/ (build output)"
-echo "- .replit files"
-echo "- attached_assets/"
+# Copy GitHub workflow
+mkdir -p ar-rahman-clean/.github/workflows/
+cp .github/workflows/deploy.yml ar-rahman-clean/.github/workflows/
 
-ls -la
+echo "Clean files ready in ar-rahman-clean/ directory"
+echo "Total size: $(du -sh ar-rahman-clean/ | cut -f1)"
+echo ""
+echo "Next steps:"
+echo "1. Compress ar-rahman-clean/ folder"
+echo "2. Upload to GitHub"
+echo "3. Connect to new Netlify site"

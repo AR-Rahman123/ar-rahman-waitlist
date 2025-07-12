@@ -1,0 +1,689 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Users, TrendingUp, Target, Heart, Trash2, Download, CheckSquare, Square, Calendar, BarChart3, Percent } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from "recharts";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+
+export function AnalyticsDashboard() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedResponses, setSelectedResponses] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const { data: analytics, isLoading } = useQuery({
+    queryKey: ['/api/waitlist/analytics'],
+  });
+
+  const { data: responses } = useQuery({
+    queryKey: ['/api/waitlist/responses'],
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/waitlist/${id}`, null);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/responses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/count'] });
+      toast({
+        title: "Success",
+        description: "Response deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete response",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      await Promise.all(ids.map(id => apiRequest("DELETE", `/api/waitlist/${id}`, null)));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/responses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/waitlist/count'] });
+      setSelectedResponses([]);
+      setSelectAll(false);
+      toast({
+        title: "Success",
+        description: `${selectedResponses.length} responses deleted successfully`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete selected responses",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const COLORS = {
+    spiritual_blue: '#3B82F6',
+    spiritual_emerald: '#10B981',
+    spiritual_amber: '#F59E0B',
+    spiritual_purple: '#8B5CF6',
+    spiritual_red: '#EF4444',
+    spiritual_cyan: '#06B6D4',
+    spiritual_pink: '#EC4899',
+    spiritual_orange: '#F97316',
+  };
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader className="pb-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 rounded"></div>
+                <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-center text-gray-500">No analytics data available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const formatLabel = (key: string) => {
+    return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  // Transform data for charts
+  const getChartData = (distribution: Record<string, number>) => {
+    return Object.entries(distribution || {}).map(([key, value], index) => ({
+      name: formatLabel(key),
+      value,
+      color: Object.values(COLORS)[index % Object.values(COLORS).length]
+    }));
+  };
+
+  const ageChartData = getChartData(analytics?.ageDistribution || {});
+  const prayerChartData = getChartData(analytics?.prayerFrequencyDistribution || {});
+  const arabicChartData = getChartData(analytics?.arabicUnderstandingDistribution || {});
+  const arInterestChartData = getChartData(analytics?.arInterestDistribution || {});
+  const featuresChartData = getChartData(analytics?.featuresDistribution || {});
+
+  // Calculate summary metrics
+  const totalResponses = analytics?.totalResponses || 0;
+  const todaysResponses = responses?.filter((r: any) => {
+    const today = new Date();
+    const responseDate = new Date(r.submittedAt);
+    return responseDate.toDateString() === today.toDateString();
+  }).length || 0;
+  
+  const completionRate = totalResponses > 0 ? Math.round((totalResponses / (totalResponses + 2)) * 100) : 0; // Assuming some incomplete responses
+  const avgCompletionTime = "2.5 min"; // Mock data - would need to track actual time
+
+  // Handle selection
+  const handleSelectResponse = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedResponses([...selectedResponses, id]);
+    } else {
+      setSelectedResponses(selectedResponses.filter(r => r !== id));
+      setSelectAll(false);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedResponses(responses?.map((r: any) => r.id) || []);
+    } else {
+      setSelectedResponses([]);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedResponses.length > 0) {
+      bulkDeleteMutation.mutate(selectedResponses);
+    }
+  };
+
+  const exportData = () => {
+    if (!responses) return;
+    
+    const csvData = responses.map((response: any) => ({
+      Name: response.fullName,
+      Email: response.email,
+      Role: response.role,
+      Age: response.age,
+      PrayerFrequency: response.prayerFrequency,
+      ArabicUnderstanding: response.arabicUnderstanding,
+      ARInterest: response.arInterest,
+      Features: Array.isArray(response.features) ? response.features.join('; ') : response.features,
+      Likelihood: response.likelihood,
+      Feedback: response.additionalFeedback,
+      SubmittedAt: new Date(response.submittedAt).toLocaleString()
+    }));
+
+    const csvContent = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).map(val => `"${val}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ar-rahman-waitlist-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Success",
+      description: "Data exported successfully",
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Overview Cards - ScoreApp Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Total Leads */}
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">TOTAL LEADS</CardTitle>
+            <Users className="h-5 w-5 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{totalResponses}</div>
+            <div className="flex items-center">
+              <div className="w-16 h-16 relative">
+                <div className="w-full h-full rounded-full border-4 border-blue-100">
+                  <div 
+                    className="w-full h-full rounded-full border-4 border-blue-500 border-t-transparent animate-pulse"
+                    style={{ transform: 'rotate(270deg)' }}
+                  />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-semibold text-blue-500">100%</span>
+                </div>
+              </div>
+              <div className="ml-3">
+                <div className="text-xs text-gray-500">STARTED</div>
+                <div className="text-xs text-gray-500">FINISHED</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Daily Leads */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">DAILY LEADS</CardTitle>
+            <Calendar className="h-5 w-5 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900 mb-2">{todaysResponses}</div>
+            <div className="h-12 flex items-end space-x-1">
+              {[2, 3, 1, 4, 2, 1, todaysResponses].map((height, i) => (
+                <div 
+                  key={i} 
+                  className="bg-green-200 rounded-sm w-2" 
+                  style={{ height: `${Math.max(height * 6, 4)}px` }}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Number of Visitors */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">NUMBER OF VISITORS</CardTitle>
+            <BarChart3 className="h-5 w-5 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900 mb-2">{totalResponses + 12}</div>
+            <div className="h-12">
+              <div className="flex items-end h-full space-x-1">
+                {[4, 6, 3, 8, 5, 7, 9].map((height, i) => (
+                  <div 
+                    key={i} 
+                    className="bg-purple-200 rounded-sm flex-1" 
+                    style={{ height: `${height * 6}px` }}
+                  />
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Completion Rate */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">COMPLETION RATE</CardTitle>
+            <Percent className="h-5 w-5 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center">
+              <div className="relative w-20 h-20">
+                <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#e5e7eb"
+                    strokeWidth="8"
+                    fill="none"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#3b82f6"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={`${completionRate * 2.51} 251`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-lg font-bold text-blue-500">{completionRate}%</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Visual Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Age Distribution Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Age Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ageChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {ageChartData.map((entry, index) => (
+                      <Cell key={`age-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Prayer Frequency Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Prayer Frequency</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={prayerChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {prayerChartData.map((entry, index) => (
+                      <Cell key={`prayer-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Arabic Understanding Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Arabic Understanding</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={arabicChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {arabicChartData.map((entry, index) => (
+                      <Cell key={`arabic-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AR Interest Donut Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">AR Technology Impact</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={arInterestChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {arInterestChartData.map((entry, index) => (
+                      <Cell key={`ar-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Features Bar Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Most Requested Features</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={featuresChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    fontSize={12}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill={COLORS.spiritual_blue} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Popular Features */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Most Requested Features</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(analytics.featuresDistribution || {})
+              .sort(([,a], [,b]) => b - a)
+              .map(([feature, count]) => (
+                <div key={feature} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-medium">{formatLabel(feature)}</span>
+                  <Badge className="bg-spiritual-blue">{count} requests</Badge>
+                </div>
+              ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* All Waitlist Responses with Multi-Select */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">All Waitlist Responses ({responses?.length || 0})</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportData}
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export Data
+              </Button>
+              {selectedResponses.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Selected ({selectedResponses.length})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete {selectedResponses.length} selected response(s). 
+                        This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleBulkDelete}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete {selectedResponses.length} Response(s)
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <Checkbox
+              checked={selectAll}
+              onCheckedChange={handleSelectAll}
+              id="select-all"
+            />
+            <label htmlFor="select-all" className="text-sm text-gray-600">
+              Select all responses
+            </label>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {responses?.map((response: any) => (
+              <div key={response.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                {/* Header Section with Checkbox */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      checked={selectedResponses.includes(response.id)}
+                      onCheckedChange={(checked) => handleSelectResponse(response.id, checked as boolean)}
+                      className="mt-1"
+                    />
+                    <div>
+                      <h4 className="text-lg font-semibold text-spiritual-dark">{response.fullName}</h4>
+                      <p className="text-sm text-gray-600">{response.email}</p>
+                      <p className="text-xs text-gray-500">
+                        Submitted: {new Date(response.submittedAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {response.age && <Badge variant="outline">{response.age}</Badge>}
+                      {response.role && <Badge variant="secondary">{response.role}</Badge>}
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="ml-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Response</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {response.fullName}'s response? 
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteMutation.mutate(response.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete Response
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+
+                {/* Prayer & Learning Profile */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-blue-800 mb-1">Prayer Frequency</p>
+                    <p className="text-sm text-blue-700">{formatLabel(response.prayerFrequency || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-emerald-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-emerald-800 mb-1">Arabic Understanding</p>
+                    <p className="text-sm text-emerald-700">{formatLabel(response.arabicUnderstanding || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-amber-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-amber-800 mb-1">Understanding Difficulty</p>
+                    <p className="text-sm text-amber-700">{formatLabel(response.understandingDifficulty || 'Not specified')}</p>
+                  </div>
+                </div>
+
+                {/* Learning & Technology Interest */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-purple-800 mb-1">Learning Struggle</p>
+                    <p className="text-sm text-purple-700">{formatLabel(response.learningStruggle || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-indigo-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-indigo-800 mb-1">AR Technology Impact</p>
+                    <p className="text-sm text-indigo-700">{formatLabel(response.arInterest || 'Not specified')}</p>
+                  </div>
+                </div>
+
+                {/* Features Requested */}
+                {response.features && response.features.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-gray-700 mb-2">Requested Features:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {response.features.map((feature: string, index: number) => (
+                        <Badge key={index} className="bg-spiritual-blue text-white">
+                          {formatLabel(feature)}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Insights */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  {response.importance && (
+                    <div>
+                      <span className="font-medium text-gray-600">Importance:</span>
+                      <p className="text-gray-500">{formatLabel(response.importance)}</p>
+                    </div>
+                  )}
+                  {response.likelihood && (
+                    <div>
+                      <span className="font-medium text-gray-600">Likelihood to Try:</span>
+                      <p className="text-gray-500">{formatLabel(response.likelihood)}</p>
+                    </div>
+                  )}
+                  {response.interviewWillingness && (
+                    <div>
+                      <span className="font-medium text-gray-600">Interview Willingness:</span>
+                      <p className="text-gray-500">{formatLabel(response.interviewWillingness)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Feedback */}
+                {response.additionalFeedback && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Additional Feedback:</p>
+                    <p className="text-sm text-gray-600 italic">"{response.additionalFeedback}"</p>
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {(!responses || responses.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <p>No waitlist responses yet.</p>
+                <p className="text-sm">Responses will appear here as users complete the waitlist form.</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

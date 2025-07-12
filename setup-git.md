@@ -1,64 +1,35 @@
-# Setting Up Git Integration in Replit
+# Fresh Start: Clean Deployment Setup
 
-## Method 1: Using Replit's Git Integration (Recommended)
+## Step 1: Create New Netlify Site
+1. **Go to Netlify dashboard**
+2. **Sites → Add new site → Deploy manually**
+3. **Drag and drop a simple folder** (just to create the site)
+4. **Site settings → Change site name** to something like `ar-rahman-ai`
+5. **Domain settings → Add custom domain**: `www.ar-rahman.ai`
 
-1. **Open the Git panel** in Replit:
-   - Click the **Git icon** in the left sidebar
-   - Or go to **Tools → Git**
+## Step 2: Get Your Project Files Ready
+1. **Download from Replit**: Menu → Export → Download as ZIP
+2. **Extract and clean**: Remove `node_modules/`, `attached_assets/`, `dist/`
+3. **Keep only**: `client/`, `server/`, `shared/`, `package.json`, etc.
 
-2. **Connect to GitHub**:
-   - Click **"Connect to GitHub"**
-   - Authorize Replit to access your GitHub account
-   - Select your `ar-rahman-waitlist` repository
+## Step 3: Upload to GitHub (Fresh)
+1. **Create new repository** (or clear existing one)
+2. **Upload all clean files** via GitHub web interface
+3. **Commit**: "Fresh AR Rahman waitlist deployment"
 
-3. **Push your code**:
-   - The interface will show all your files
-   - Add a commit message: "Initial commit - Enhanced AR Rahman waitlist"
-   - Click **"Commit and push"**
+## Step 4: Connect New Netlify Site to GitHub
+1. **New Netlify site → Site settings → Build & deploy**
+2. **Link to repository**: Your GitHub repo
+3. **Build settings**:
+   - Branch: `main`
+   - Build command: `npm run build`
+   - Publish directory: `dist/public`
 
-## Method 2: Manual Git Setup (If Git panel doesn't work)
+## Step 5: Add Environment Variables
+In Netlify site settings → Environment variables:
+- `DATABASE_URL`: Your PostgreSQL connection
+- `SENDGRID_API_KEY`: When ready for emails
+- `FROM_EMAIL`: help@ar-rahman.ai
+- `ADMIN_EMAIL`: Your email
 
-Run these commands in the Replit Shell:
-
-```bash
-# Set up git credentials
-git config --global user.email "your-email@example.com"
-git config --global user.name "Your Name"
-
-# Add remote repository
-git remote add origin https://github.com/YOUR_USERNAME/ar-rahman-waitlist.git
-
-# Add all files
-git add .
-
-# Commit changes
-git commit -m "Initial commit - Enhanced AR Rahman waitlist"
-
-# Push to GitHub
-git push -u origin main
-```
-
-## Method 3: Using GitHub Personal Access Token
-
-If you need authentication:
-
-1. **Create a Personal Access Token**:
-   - Go to GitHub → Settings → Developer settings → Personal access tokens
-   - Create a new token with "repo" permissions
-   - Copy the token
-
-2. **Use token for authentication**:
-   ```bash
-   git remote add origin https://YOUR_TOKEN@github.com/YOUR_USERNAME/ar-rahman-waitlist.git
-   git push -u origin main
-   ```
-
-## Future Workflow
-
-Once set up, your workflow will be:
-1. **Make changes** in Replit
-2. **Test locally** using the preview
-3. **Commit and push** via Git panel
-4. **Netlify auto-deploys** to your live site
-
-This gives you a professional development workflow with version control and automatic deployment!
+This eliminates all the Bolt conflicts and gives you a clean deployment pipeline.
