@@ -37,58 +37,66 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
+      {/* Hero Section with Side-by-Side Layout */}
+      <section className="relative py-20 overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-violet-800/30 to-teal-900/40"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-white">
-            Experience the Qur'an<br />
-            <span className="bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">Like Never Before</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-gray-200 max-w-4xl mx-auto leading-relaxed">
-            Be among the first to access an Augmented Reality tool that brings the meaning of the Qur'an to life — directly during your prayer.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button
-              onClick={openWaitlistForm}
-              className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white px-8 py-4 text-lg font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Join the Waitlist
-            </Button>
-            <Button
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
-            >
-              Visit Main Site
-            </Button>
-          </div>
-          <div className="flex items-center justify-center space-x-2 text-teal-300">
-            <Users className="w-5 h-5" />
-            <span className="font-medium">
-              {waitlistCount?.count || 1000}+ believers on the waitlist
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* Video Section */}
-      <section className="py-16 bg-gray-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">Experience AR Prayer Technology</h2>
-            <p className="text-gray-300 text-lg">See how AR technology transforms your prayer experience</p>
-          </div>
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/10">
-            <div style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
-              <iframe
-                src="https://player.vimeo.com/video/1100864847?badge=0&autopause=0&player_id=0&app_id=58479"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                title="AR Rahman Intro Video"
-              />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side - Text Content */}
+            <div className="text-left">
+              <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold mb-6 leading-tight text-white">
+                Experience the<br />
+                <span className="bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">Qur'an</span> Like<br />
+                Never Before
+              </h1>
+              <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed max-w-2xl">
+                Be among the first to access an Augmented Reality tool that brings the meaning of the Qur'an to life — directly during your prayer.
+              </p>
+              <p className="text-lg mb-10 text-gray-300 leading-relaxed max-w-2xl">
+                We're pioneering a revolutionary approach to deepen your connection with Allah through cutting-edge Augmented Reality. 
+                Imagine understanding the divine words as they flow through your heart — experiencing real-time comprehension while you stand in prayer. 
+                This is the future of spiritual immersion, where technology serves the soul.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Button
+                  onClick={openWaitlistForm}
+                  className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white px-8 py-4 text-lg font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Join the Waitlist
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
+                >
+                  Visit Main Site
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2 text-teal-300">
+                <Users className="w-5 h-5" />
+                <span className="font-medium">
+                  {waitlistCount?.count || 1000}+ believers on the waitlist
+                </span>
+              </div>
             </div>
-            <script src="https://player.vimeo.com/api/player.js"></script>
+
+            {/* Right Side - Video */}
+            <div className="relative">
+              <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/10">
+                <div style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
+                  <iframe
+                    src="https://player.vimeo.com/video/1100864847?badge=0&autopause=0&player_id=0&app_id=58479"
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    title="AR Rahman Intro Video"
+                  />
+                </div>
+                <script src="https://player.vimeo.com/api/player.js"></script>
+              </div>
+              <p className="text-center text-gray-300 text-sm mt-4">
+                Experience how AR technology transforms your prayer experience
+              </p>
+            </div>
           </div>
         </div>
       </section>
