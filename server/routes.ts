@@ -4,8 +4,56 @@ import { storage } from "./storage";
 import { insertWaitlistResponseSchema } from "@shared/schema";
 import { sendWelcomeEmail, sendAdminNotification } from "./email";
 import { createDatabaseBackup, exportWaitlistDataToCSV } from "./backup";
+import { verifyAdminPassword, requireAdminAuth } from "./adminAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Admin authentication routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (!password) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Password is required" 
+        });
+      }
+      
+      if (verifyAdminPassword(password)) {
+        (req.session as any).adminAuthenticated = true;
+        res.json({ 
+          success: true, 
+          message: "Admin authentication successful" 
+        });
+      } else {
+        res.status(401).json({ 
+          success: false, 
+          message: "Invalid admin password" 
+        });
+      }
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Login failed" 
+      });
+    }
+  });
+
+  app.post("/api/admin/logout", async (req, res) => {
+    (req.session as any).adminAuthenticated = false;
+    res.json({ 
+      success: true, 
+      message: "Admin logged out successfully" 
+    });
+  });
+
+  app.get("/api/admin/status", async (req, res) => {
+    res.json({ 
+      authenticated: (req.session as any)?.adminAuthenticated === true 
+    });
+  });
+
   // Submit waitlist response
   app.post("/api/waitlist", async (req, res) => {
     try {
@@ -59,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get waitlist responses (admin only)
-  app.get("/api/waitlist/responses", async (req, res) => {
+  app.get("/api/waitlist/responses", requireAdminAuth, async (req, res) => {
     try {
       const responses = await storage.getWaitlistResponses();
       res.json(responses);
@@ -87,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get analytics data
-  app.get("/api/waitlist/analytics", async (req, res) => {
+  app.get("/api/waitlist/analytics", requireAdminAuth, async (req, res) => {
     try {
       const analytics = await storage.getWaitlistAnalytics();
       res.json(analytics);
@@ -101,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete waitlist response
-  app.delete("/api/waitlist/:id", async (req, res) => {
+  app.delete("/api/waitlist/:id", requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -130,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Manual backup endpoints
-  app.post("/api/backup/create", async (req, res) => {
+  app.post("/api/backup/create", requireAdminAuth, async (req, res) => {
     try {
       const backupPath = await createDatabaseBackup();
       res.json({ 
@@ -144,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/backup/export-csv", async (req, res) => {
+  app.post("/api/backup/export-csv", requireAdminAuth, async (req, res) => {
     try {
       const csvPath = await exportWaitlistDataToCSV();
       res.json({ 

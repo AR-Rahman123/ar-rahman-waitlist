@@ -1,10 +1,42 @@
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
+import { AdminLogin } from "@/components/admin-login";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut, Shield } from "lucide-react";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Admin() {
+  const { isAuthenticated, isLoading, logout, isLoggingOut } = useAdminAuth();
+  const { toast } = useToast();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-spiritual-light flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-8 h-8 text-spiritual-blue mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AdminLogin />;
+  }
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        toast({
+          title: "Logged Out",
+          description: "You have been safely logged out",
+        });
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-spiritual-light">
       {/* Header */}
@@ -20,6 +52,17 @@ export default function Admin() {
               </Link>
               <h1 className="text-2xl font-bold text-spiritual-dark">Admin Dashboard</h1>
             </div>
+            
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
+              disabled={isLoggingOut}
+            >
+              <LogOut className="w-4 h-4" />
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </Button>
           </div>
         </div>
       </header>
