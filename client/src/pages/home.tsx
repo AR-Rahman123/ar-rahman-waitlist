@@ -64,12 +64,6 @@ export default function Home() {
                 >
                   Join the Waitlist
                 </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
-                >
-                  Visit Main Site
-                </Button>
               </div>
               <div className="flex items-center space-x-2 text-teal-300">
                 <Users className="w-5 h-5" />
