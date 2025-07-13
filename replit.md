@@ -156,6 +156,16 @@ Preferred communication style: Simple, everyday language.
 - Session expires after 24 hours for security
 - All sensitive admin operations now require authentication
 
+### Form Options & Dashboard Updates (July 13, 2025)
+- **Form Updates**: Removed "Extremely important" option from importance question
+- **Form Updates**: Removed "Community prayer features" option from features selection
+- **Dashboard Fixes**: Fixed field mapping issues - all questions now display correctly
+- **CSV Export**: Fixed export functionality - all data fields properly included in exports
+- **Data Display**: Enhanced dashboard to show all 15 form questions and responses
+- **Field Names**: Corrected field name mapping between frontend and database schema
+- **Export Format**: CSV exports now contain complete data with proper formatting
+- **Current Status**: 4 submissions with full data visibility and working export functionality
+
 ### Analytics Dashboard Enhancements (Previous)
 - Resolved critical deployment/caching issues that were preventing dashboard updates from showing
 - Implemented complete visual analytics dashboard with pie charts, donut charts, and bar charts using recharts library

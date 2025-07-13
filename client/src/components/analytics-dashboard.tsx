@@ -176,7 +176,7 @@ export function AnalyticsDashboard() {
   const totalResponses = analytics?.totalResponses || 0;
   const todaysResponses = responses?.filter((r: any) => {
     const today = new Date();
-    const responseDate = new Date(r.submittedAt);
+    const responseDate = new Date(r.created_at);
     return responseDate.toDateString() === today.toDateString();
   }).length || 0;
   
@@ -212,17 +212,25 @@ export function AnalyticsDashboard() {
     if (!responses) return;
     
     const csvData = responses.map((response: any) => ({
-      Name: response.fullName,
+      Name: response.full_name,
       Email: response.email,
       Role: response.role,
       Age: response.age,
-      PrayerFrequency: response.prayerFrequency,
-      ArabicUnderstanding: response.arabicUnderstanding,
-      ARInterest: response.arInterest,
+      PrayerFrequency: response.prayer_frequency,
+      ArabicUnderstanding: response.arabic_understanding,
+      UnderstandingDifficulty: response.understanding_difficulty,
+      Importance: response.importance,
+      LearningStruggle: response.learning_struggle,
+      CurrentApproach: response.current_approach,
+      ARExperience: response.ar_experience,
+      ARInterest: response.ar_interest,
       Features: Array.isArray(response.features) ? response.features.join('; ') : response.features,
       Likelihood: response.likelihood,
-      Feedback: response.additionalFeedback,
-      SubmittedAt: new Date(response.submittedAt).toLocaleString()
+      AdditionalFeedback: response.additional_feedback,
+      InterviewWillingness: response.interview_willingness,
+      InvestorPresentation: response.investor_presentation,
+      AdditionalComments: response.additional_comments,
+      SubmittedAt: new Date(response.created_at).toLocaleString()
     }));
 
     const csvContent = [
@@ -617,10 +625,10 @@ export function AnalyticsDashboard() {
                       className="mt-1"
                     />
                     <div>
-                      <h4 className="text-lg font-semibold text-spiritual-dark">{response.fullName}</h4>
+                      <h4 className="text-lg font-semibold text-spiritual-dark">{response.full_name}</h4>
                       <p className="text-sm text-gray-600">{response.email}</p>
                       <p className="text-xs text-gray-500">
-                        Submitted: {new Date(response.submittedAt).toLocaleString()}
+                        Submitted: {new Date(response.created_at).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -643,7 +651,7 @@ export function AnalyticsDashboard() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Response</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete {response.fullName}'s response? 
+                            Are you sure you want to delete {response.full_name}'s response? 
                             This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
@@ -665,27 +673,43 @@ export function AnalyticsDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs font-medium text-blue-800 mb-1">Prayer Frequency</p>
-                    <p className="text-sm text-blue-700">{formatLabel(response.prayerFrequency || 'Not specified')}</p>
+                    <p className="text-sm text-blue-700">{formatLabel(response.prayer_frequency || 'Not specified')}</p>
                   </div>
                   <div className="bg-emerald-50 p-3 rounded-lg">
                     <p className="text-xs font-medium text-emerald-800 mb-1">Arabic Understanding</p>
-                    <p className="text-sm text-emerald-700">{formatLabel(response.arabicUnderstanding || 'Not specified')}</p>
+                    <p className="text-sm text-emerald-700">{formatLabel(response.arabic_understanding || 'Not specified')}</p>
                   </div>
                   <div className="bg-amber-50 p-3 rounded-lg">
                     <p className="text-xs font-medium text-amber-800 mb-1">Understanding Difficulty</p>
-                    <p className="text-sm text-amber-700">{formatLabel(response.understandingDifficulty || 'Not specified')}</p>
+                    <p className="text-sm text-amber-700">{formatLabel(response.understanding_difficulty || 'Not specified')}</p>
                   </div>
                 </div>
 
                 {/* Learning & Technology Interest */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                   <div className="bg-purple-50 p-3 rounded-lg">
                     <p className="text-xs font-medium text-purple-800 mb-1">Learning Struggle</p>
-                    <p className="text-sm text-purple-700">{formatLabel(response.learningStruggle || 'Not specified')}</p>
+                    <p className="text-sm text-purple-700">{formatLabel(response.learning_struggle || 'Not specified')}</p>
                   </div>
                   <div className="bg-indigo-50 p-3 rounded-lg">
-                    <p className="text-xs font-medium text-indigo-800 mb-1">AR Technology Impact</p>
-                    <p className="text-sm text-indigo-700">{formatLabel(response.arInterest || 'Not specified')}</p>
+                    <p className="text-xs font-medium text-indigo-800 mb-1">Current Approach</p>
+                    <p className="text-sm text-indigo-700">{formatLabel(response.current_approach || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-teal-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-teal-800 mb-1">AR Experience</p>
+                    <p className="text-sm text-teal-700">{formatLabel(response.ar_experience || 'Not specified')}</p>
+                  </div>
+                </div>
+
+                {/* AR Interest & Engagement */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-rose-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-rose-800 mb-1">AR Technology Impact</p>
+                    <p className="text-sm text-rose-700">{formatLabel(response.ar_interest || 'Not specified')}</p>
+                  </div>
+                  <div className="bg-cyan-50 p-3 rounded-lg">
+                    <p className="text-xs font-medium text-cyan-800 mb-1">Investor Presentation Interest</p>
+                    <p className="text-sm text-cyan-700">{formatLabel(response.investor_presentation || 'Not specified')}</p>
                   </div>
                 </div>
 
@@ -717,19 +741,27 @@ export function AnalyticsDashboard() {
                       <p className="text-gray-500">{formatLabel(response.likelihood)}</p>
                     </div>
                   )}
-                  {response.interviewWillingness && (
+                  {response.interview_willingness && (
                     <div>
                       <span className="font-medium text-gray-600">Interview Willingness:</span>
-                      <p className="text-gray-500">{formatLabel(response.interviewWillingness)}</p>
+                      <p className="text-gray-500">{formatLabel(response.interview_willingness)}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Additional Feedback */}
-                {response.additionalFeedback && (
+                {response.additional_feedback && (
                   <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                     <p className="text-xs font-medium text-gray-700 mb-1">Additional Feedback:</p>
-                    <p className="text-sm text-gray-600 italic">"{response.additionalFeedback}"</p>
+                    <p className="text-sm text-gray-600 italic">"{response.additional_feedback}"</p>
+                  </div>
+                )}
+
+                {/* Additional Comments */}
+                {response.additional_comments && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-xs font-medium text-blue-700 mb-1">Additional Comments:</p>
+                    <p className="text-sm text-blue-600 italic">"{response.additional_comments}"</p>
                   </div>
                 )}
               </div>

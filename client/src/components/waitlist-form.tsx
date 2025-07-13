@@ -325,7 +325,6 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
                   onValueChange={(value) => form.setValue("importance", value)}
                 >
                   {[
-                    "Extremely important",
                     "Very important", 
                     "Moderately important",
                     "Slightly important",
@@ -474,7 +473,6 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
                     { value: "hadith_overlay", label: "Hadith and Islamic knowledge overlay" },
                     { value: "tajweed_correction", label: "Tajweed correction" },
                     { value: "history_visualization", label: "Islamic history visualization" },
-                    { value: "community_features", label: "Community prayer features" },
                   ].map((feature) => (
                     <div key={feature.value} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50">
                       <Checkbox
