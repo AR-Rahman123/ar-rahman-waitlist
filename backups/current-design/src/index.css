@@ -24,16 +24,12 @@
   --ring: hsl(221, 83%, 53%);
   --radius: 0.5rem;
 
-  /* AR Rahman inspired by reference site colors */
-  --spiritual-purple: hsl(264, 100%, 7%);
-  --spiritual-teal: hsl(174, 100%, 29%);
-  --spiritual-coral: hsl(14, 100%, 63%);
-  --spiritual-navy: hsl(235, 50%, 8%);
-  --spiritual-cream: hsl(48, 100%, 98%);
-  --spiritual-gray: hsl(210, 11%, 15%);
-  --spiritual-light-purple: hsl(265, 100%, 12%);
-  --spiritual-gradient-1: linear-gradient(135deg, hsl(264, 100%, 7%) 0%, hsl(235, 50%, 8%) 50%, hsl(174, 100%, 29%) 100%);
-  --spiritual-gradient-2: linear-gradient(45deg, hsl(174, 100%, 29%) 0%, hsl(14, 100%, 63%) 100%);
+  /* AR Rahman custom colors */
+  --spiritual-blue: hsl(221, 83%, 53%);
+  --spiritual-emerald: hsl(158, 64%, 52%);
+  --spiritual-amber: hsl(32, 95%, 44%);
+  --spiritual-dark: hsl(210, 11%, 15%);
+  --spiritual-light: hsl(210, 40%, 98%);
 }
 
 .dark {
@@ -68,27 +64,15 @@
   }
 
   .spiritual-gradient {
-    background: var(--spiritual-gradient-1);
+    background: linear-gradient(135deg, hsl(221, 83%, 53%) 0%, hsl(158, 64%, 52%) 100%);
   }
 
-  .spiritual-gradient-alt {
-    background: var(--spiritual-gradient-2);
+  .spiritual-blue {
+    color: hsl(221, 83%, 53%);
   }
 
-  .spiritual-purple {
-    color: hsl(264, 100%, 7%);
-  }
-
-  .spiritual-teal {
-    color: hsl(174, 100%, 29%);
-  }
-
-  .spiritual-coral {
-    color: hsl(14, 100%, 63%);
-  }
-
-  .spiritual-navy {
-    color: hsl(235, 50%, 8%);
+  .spiritual-emerald {
+    color: hsl(158, 64%, 52%);
   }
 
   .spiritual-amber {
