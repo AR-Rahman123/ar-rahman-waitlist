@@ -1,6 +1,6 @@
 import { users, waitlistResponses, type User, type InsertUser, type WaitlistResponse, type InsertWaitlistResponse } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -48,10 +48,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWaitlistResponses(): Promise<WaitlistResponse[]> {
-    return await db
-      .select()
-      .from(waitlistResponses)
-      .orderBy(desc(waitlistResponses.submittedAt));
+    try {
+      // Try a simple raw query to debug
+      const pool = (await import("./db")).pool;
+      const result = await pool.query("SELECT * FROM waitlist_responses ORDER BY created_at DESC");
+      console.log("Raw query result:", result.rows);
+      return result.rows as WaitlistResponse[];
+    } catch (error) {
+      console.error("Database query error:", error);
+      throw error;
+    }
   }
 
   async getWaitlistResponsesCount(): Promise<number> {
@@ -96,22 +102,22 @@ export class DatabaseStorage implements IStorage {
         ageDistribution[response.age] = (ageDistribution[response.age] || 0) + 1;
       }
 
-      // Prayer frequency distribution
-      if (response.prayerFrequency) {
-        prayerFrequencyDistribution[response.prayerFrequency] = 
-          (prayerFrequencyDistribution[response.prayerFrequency] || 0) + 1;
+      // Prayer frequency distribution  
+      if (response.prayer_frequency) {
+        prayerFrequencyDistribution[response.prayer_frequency] = 
+          (prayerFrequencyDistribution[response.prayer_frequency] || 0) + 1;
       }
 
       // Arabic understanding distribution
-      if (response.arabicUnderstanding) {
-        arabicUnderstandingDistribution[response.arabicUnderstanding] = 
-          (arabicUnderstandingDistribution[response.arabicUnderstanding] || 0) + 1;
+      if (response.arabic_understanding) {
+        arabicUnderstandingDistribution[response.arabic_understanding] = 
+          (arabicUnderstandingDistribution[response.arabic_understanding] || 0) + 1;
       }
 
-      // AR interest distribution
-      if (response.arInterest) {
-        arInterestDistribution[response.arInterest] = 
-          (arInterestDistribution[response.arInterest] || 0) + 1;
+      // AR interest distribution  
+      if (response.ar_interest) {
+        arInterestDistribution[response.ar_interest] = 
+          (arInterestDistribution[response.ar_interest] || 0) + 1;
       }
 
       // Features distribution
