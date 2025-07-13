@@ -16,21 +16,17 @@ import { apiRequest } from "@/lib/queryClient";
 import { X, ArrowRight, ArrowLeft, Send, Check } from "lucide-react";
 
 const waitlistSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   email: z.string().email("Valid email is required"),
-  role: z.string().optional(),
-  age: z.string().optional(),
-  prayerFrequency: z.string().optional(),
-  arabicUnderstanding: z.string().optional(),
-  understandingDifficulty: z.string().optional(),
-  importance: z.string().optional(),
-  learningStruggle: z.string().optional(),
-  arInterest: z.string().optional(),
-  features: z.array(z.string()).optional(),
-  likelihood: z.string().optional(),
-  additionalFeedback: z.string().optional(),
-  interviewWillingness: z.string().optional(),
-  investorPresentation: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  country: z.string().min(2, "Country is required"),
+  ageRange: z.string().min(1, "Age range is required"),
+  prayerFrequency: z.string().min(1, "Prayer frequency is required"),
+  arabicUnderstanding: z.string().min(1, "Arabic understanding is required"),
+  arInterest: z.string().min(1, "AR interest level is required"),
+  interestedFeatures: z.array(z.string()).min(1, "Please select at least one feature"),
+  additionalComments: z.string().optional(),
 });
 
 type WaitlistFormData = z.infer<typeof waitlistSchema>;
@@ -51,10 +47,17 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
   const form = useForm<WaitlistFormData>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
-      role: "",
-      features: [],
+      phoneNumber: "",
+      country: "",
+      ageRange: "",
+      prayerFrequency: "",
+      arabicUnderstanding: "",
+      arInterest: "",
+      interestedFeatures: [],
+      additionalComments: "",
     },
   });
 

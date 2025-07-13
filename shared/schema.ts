@@ -10,22 +10,18 @@ export const users = pgTable("users", {
 
 export const waitlistResponses = pgTable("waitlist_responses", {
   id: serial("id").primaryKey(),
-  fullName: text("full_name").notNull(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
   email: text("email").notNull(),
-  role: text("role"),
-  age: text("age"),
-  prayerFrequency: text("prayer_frequency"),
-  arabicUnderstanding: text("arabic_understanding"),
-  understandingDifficulty: text("understanding_difficulty"),
-  importance: text("importance"),
-  learningStruggle: text("learning_struggle"),
-  arInterest: text("ar_interest"),
-  features: jsonb("features"), // Array of selected features
-  likelihood: text("likelihood"),
-  additionalFeedback: text("additional_feedback"),
-  interviewWillingness: text("interview_willingness"),
-  investorPresentation: text("investor_presentation"),
-  submittedAt: timestamp("submitted_at").defaultNow(),
+  phoneNumber: text("phone_number"),
+  country: text("country").notNull(),
+  ageRange: text("age_range").notNull(),
+  prayerFrequency: text("prayer_frequency").notNull(),
+  arabicUnderstanding: text("arabic_understanding").notNull(),
+  arInterest: text("ar_interest").notNull(),
+  interestedFeatures: jsonb("interested_features").notNull(), // Array of selected features
+  additionalComments: text("additional_comments"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -35,7 +31,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertWaitlistResponseSchema = createInsertSchema(waitlistResponses).omit({
   id: true,
-  submittedAt: true,
+  createdAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
