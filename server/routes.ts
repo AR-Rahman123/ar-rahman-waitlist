@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertWaitlistResponseSchema } from "@shared/schema";
 import { sendWelcomeEmail, sendAdminNotification } from "./email";
+import { createDatabaseBackup, exportWaitlistDataToCSV } from "./backup";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Submit waitlist response
@@ -12,8 +13,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const response = await storage.createWaitlistResponse(validatedData);
       
+      // Create automatic backup after each submission
+      createDatabaseBackup()
+        .then(backupPath => {
+          console.log(`✅ Auto-backup created: ${backupPath}`);
+        })
+        .catch(error => {
+          console.error(`❌ Auto-backup failed:`, error);
+        });
+      
       // Send welcome email to user (async, don't block response)
-      sendWelcomeEmail(response.email, response.firstName)
+      sendWelcomeEmail(response.email, response.fullName)
         .then(success => {
           if (success) {
             console.log(`✅ Welcome email sent to ${response.email}`);
@@ -29,9 +39,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       sendAdminNotification(response)
         .then(success => {
           if (success) {
-            console.log(`✅ Admin notification sent for ${response.firstName} ${response.lastName}`);
+            console.log(`✅ Admin notification sent for ${response.fullName}`);
           } else {
-            console.log(`❌ Failed to send admin notification for ${response.firstName} ${response.lastName}`);
+            console.log(`❌ Failed to send admin notification for ${response.fullName}`);
           }
         })
         .catch(error => {
@@ -116,6 +126,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         message: "Failed to delete response" 
       });
+    }
+  });
+
+  // Manual backup endpoints
+  app.post("/api/backup/create", async (req, res) => {
+    try {
+      const backupPath = await createDatabaseBackup();
+      res.json({ 
+        success: true, 
+        message: "Backup created successfully", 
+        backupPath: backupPath.split('/').pop() // Return just filename for security
+      });
+    } catch (error: any) {
+      console.error("Error creating backup:", error);
+      res.status(500).json({ success: false, message: "Failed to create backup" });
+    }
+  });
+
+  app.post("/api/backup/export-csv", async (req, res) => {
+    try {
+      const csvPath = await exportWaitlistDataToCSV();
+      res.json({ 
+        success: true, 
+        message: "CSV export created successfully", 
+        csvPath: csvPath.split('/').pop() // Return just filename for security
+      });
+    } catch (error: any) {
+      console.error("Error exporting CSV:", error);
+      res.status(500).json({ success: false, message: "Failed to export CSV" });
     }
   });
 

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, TrendingUp, Target, Heart, Trash2, Download, CheckSquare, Square, Calendar, BarChart3, Percent } from "lucide-react";
+import { Users, TrendingUp, Target, Heart, Trash2, Download, CheckSquare, Square, Calendar, BarChart3, Percent, Shield, Database } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from "recharts";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -66,6 +66,46 @@ export function AnalyticsDashboard() {
       toast({
         title: "Error",
         description: "Failed to delete selected responses",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const backupMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/backup/create", null);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Backup Created",
+        description: `Database backup saved: ${data.backupPath}`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Backup Failed",
+        description: "Failed to create database backup",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/backup/export-csv", null);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Export Created",
+        description: `CSV export saved: ${data.csvPath}`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export CSV data",
         variant: "destructive",
       });
     },
@@ -490,6 +530,26 @@ export function AnalyticsDashboard() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">All Waitlist Responses ({responses?.length || 0})</CardTitle>
             <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => backupMutation.mutate()} 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
+                disabled={backupMutation.isPending}
+              >
+                <Shield className="w-4 h-4" />
+                {backupMutation.isPending ? "Creating..." : "Create Backup"}
+              </Button>
+              <Button 
+                onClick={() => exportMutation.mutate()} 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+                disabled={exportMutation.isPending}
+              >
+                <Database className="w-4 h-4" />
+                {exportMutation.isPending ? "Exporting..." : "Export CSV"}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -497,7 +557,7 @@ export function AnalyticsDashboard() {
                 className="flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                Export Data
+                Download Current
               </Button>
               {selectedResponses.length > 0 && (
                 <AlertDialog>
