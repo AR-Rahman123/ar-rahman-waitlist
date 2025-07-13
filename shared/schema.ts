@@ -10,16 +10,22 @@ export const users = pgTable("users", {
 
 export const waitlistResponses = pgTable("waitlist_responses", {
   id: serial("id").primaryKey(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
+  fullName: text("full_name").notNull(),
   email: text("email").notNull(),
-  phoneNumber: text("phone_number"),
-  country: text("country").notNull(),
-  ageRange: text("age_range").notNull(),
+  role: text("role"),
+  age: text("age").notNull(),
   prayerFrequency: text("prayer_frequency").notNull(),
   arabicUnderstanding: text("arabic_understanding").notNull(),
+  understandingDifficulty: text("understanding_difficulty").notNull(),
+  importance: text("importance").notNull(),
+  currentApproach: text("current_approach").notNull(),
+  arExperience: text("ar_experience").notNull(),
   arInterest: text("ar_interest").notNull(),
-  interestedFeatures: jsonb("interested_features").notNull(), // Array of selected features
+  features: jsonb("features").notNull(), // Array of selected features
+  likelihood: text("likelihood"),
+  additionalFeedback: text("additional_feedback"),
+  interviewWillingness: text("interview_willingness").notNull(),
+  investorPresentation: text("investor_presentation").notNull(),
   additionalComments: text("additional_comments"),
   createdAt: timestamp("created_at").defaultNow(),
 });

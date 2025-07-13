@@ -25,11 +25,14 @@ export default function Home() {
               <Box className="text-spiritual-blue text-2xl" />
               <span className="text-2xl font-bold text-spiritual-dark">AR Rahman</span>
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-600 hover:text-spiritual-blue transition-colors">Home</a>
-              <a href="#" className="text-gray-600 hover:text-spiritual-blue transition-colors">About</a>
-              <a href="#" className="text-spiritual-blue font-medium">Waitlist</a>
-            </nav>
+            <div className="hidden md:flex">
+              <Button
+                onClick={openWaitlistForm}
+                className="bg-spiritual-blue hover:bg-blue-800 text-white px-6 py-2"
+              >
+                Join Waitlist
+              </Button>
+            </div>
           </div>
         </div>
       </header>
