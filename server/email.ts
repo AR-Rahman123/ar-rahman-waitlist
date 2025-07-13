@@ -112,7 +112,7 @@ export async function sendAdminNotification(response: WaitlistResponse): Promise
     const msg = {
       to: ADMIN_EMAIL,
       from: FROM_EMAIL,
-      subject: `🎯 New AR Rahman Waitlist Signup - ${response.firstName} ${response.lastName}`,
+      subject: `🎯 New AR Rahman Waitlist Signup - ${response.fullName}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 25px; border-radius: 12px; text-align: center; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(220,38,38,0.2);">
@@ -125,20 +125,21 @@ export async function sendAdminNotification(response: WaitlistResponse): Promise
             <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid #3b82f6;">
               <h2 style="color: #1e3a8a; margin-top: 0; font-size: 22px; font-weight: 600;">👤 Contact Information</h2>
               <div style="display: grid; gap: 8px;">
-                <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Name:</strong> ${response.firstName} ${response.lastName}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Name:</strong> ${response.fullName}</p>
                 <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Email:</strong> <a href="mailto:${response.email}" style="color: #3b82f6; text-decoration: none;">${response.email}</a></p>
-                <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Phone:</strong> ${response.phoneNumber || 'Not provided'}</p>
-                <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Country:</strong> ${response.country}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #1e3a8a;">Role:</strong> ${response.role || 'Not provided'}</p>
               </div>
             </div>
             
             <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid #16a34a;">
               <h3 style="color: #15803d; margin-top: 0; font-size: 20px; font-weight: 600;">📊 Demographics & Habits</h3>
               <div style="display: grid; gap: 8px;">
-                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">Age Group:</strong> ${ageRanges[response.ageRange as keyof typeof ageRanges] || response.ageRange}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">Age Group:</strong> ${response.age}</p>
                 <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">Prayer Frequency:</strong> ${prayerFrequencies[response.prayerFrequency as keyof typeof prayerFrequencies] || response.prayerFrequency}</p>
                 <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">Arabic Level:</strong> ${arabicLevels[response.arabicUnderstanding as keyof typeof arabicLevels] || response.arabicUnderstanding}</p>
-                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">AR Interest:</strong> ${arInterestLevels[response.arInterest as keyof typeof arInterestLevels] || response.arInterest}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">AR Interest:</strong> ${response.arInterest}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">Current Approach:</strong> ${response.currentApproach}</p>
+                <p style="margin: 5px 0; color: #374151;"><strong style="color: #15803d;">AR Experience:</strong> ${response.arExperience}</p>
               </div>
             </div>
             
@@ -147,7 +148,7 @@ export async function sendAdminNotification(response: WaitlistResponse): Promise
               <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
                 <p style="margin: 0; color: #374151; line-height: 1.6;"><strong>Interested Features:</strong></p>
                 <ul style="margin: 10px 0 0 20px; color: #374151; line-height: 1.6;">
-                  ${response.interestedFeatures.map(feature => `<li style="margin-bottom: 5px;">${feature}</li>`).join('')}
+                  ${(response.features || []).map(feature => `<li style="margin-bottom: 5px;">${feature}</li>`).join('')}
                 </ul>
               </div>
             </div>

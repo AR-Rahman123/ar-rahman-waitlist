@@ -18,6 +18,7 @@ export const waitlistResponses = pgTable("waitlist_responses", {
   arabicUnderstanding: text("arabic_understanding").notNull(),
   understandingDifficulty: text("understanding_difficulty").notNull(),
   importance: text("importance").notNull(),
+  learningStruggle: text("learning_struggle").notNull(),
   currentApproach: text("current_approach").notNull(),
   arExperience: text("ar_experience").notNull(),
   arInterest: text("ar_interest").notNull(),

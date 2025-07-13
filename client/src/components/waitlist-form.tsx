@@ -24,6 +24,7 @@ const waitlistSchema = z.object({
   arabicUnderstanding: z.string().min(1, "Arabic understanding is required"),
   understandingDifficulty: z.string().min(1, "Please select an option"),
   importance: z.string().min(1, "Please select importance level"),
+  learningStruggle: z.string().min(1, "Please select an option"),
   currentApproach: z.string().min(1, "Please select an option"),
   arExperience: z.string().min(1, "Please select AR experience level"),
   arInterest: z.string().min(1, "AR interest level is required"),
@@ -48,7 +49,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const totalSteps = 13;
+  const totalSteps = 15;
 
   const form = useForm<WaitlistFormData>({
     resolver: zodResolver(waitlistSchema),
@@ -61,6 +62,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
       arabicUnderstanding: "",
       understandingDifficulty: "",
       importance: "",
+      learningStruggle: "",
       currentApproach: "",
       arExperience: "",
       arInterest: "",
@@ -127,6 +129,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
   };
 
   const onSubmit = (data: WaitlistFormData) => {
+    console.log("Form submit triggered with data:", data);
     submitMutation.mutate(data);
   };
 
@@ -367,8 +370,66 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 8: AR Interest */}
+            {/* Step 8: Current Approach */}
             {currentStep === 8 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-spiritual-dark mb-4">How do you currently try to understand the meaning during prayer?</h3>
+                  <p className="text-gray-600 mb-8">Understanding your current approach helps us design better solutions</p>
+                </div>
+                
+                <RadioGroup
+                  value={form.watch("currentApproach")}
+                  onValueChange={(value) => form.setValue("currentApproach", value)}
+                >
+                  {[
+                    { value: "translation_apps", label: "Translation apps or websites" },
+                    { value: "memorized_translations", label: "I've memorized translations" },
+                    { value: "books_resources", label: "Books and written resources" },
+                    { value: "ask_others", label: "Ask knowledgeable friends/family" },
+                    { value: "study_before_after", label: "Study before or after prayer" },
+                    { value: "dont_currently", label: "I don't currently try to understand" },
+                    { value: "other_method", label: "Other method" },
+                  ].map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value} className="flex-1 cursor-pointer">{option.label}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Step 9: AR Experience */}
+            {currentStep === 9 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-spiritual-dark mb-4">How familiar are you with Augmented Reality (AR) technology?</h3>
+                  <p className="text-gray-600 mb-8">This helps us understand your comfort level with AR technology</p>
+                </div>
+                
+                <RadioGroup
+                  value={form.watch("arExperience")}
+                  onValueChange={(value) => form.setValue("arExperience", value)}
+                >
+                  {[
+                    { value: "very_experienced", label: "Very experienced - I use AR regularly" },
+                    { value: "some_experience", label: "Some experience - I've tried AR apps/games" },
+                    { value: "basic_knowledge", label: "Basic knowledge - I know what AR is" },
+                    { value: "heard_about_it", label: "I've heard about it but never tried it" },
+                    { value: "completely_new", label: "Completely new to me" },
+                  ].map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value} className="flex-1 cursor-pointer">{option.label}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Step 10: AR Interest */}
+            {currentStep === 10 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Imagine you had an AR (Augmented Reality) headset that was designed like normal glasses and could be used to enhance your prayer experience, what would this mean to you?</h3>
@@ -396,8 +457,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 9: Features */}
-            {currentStep === 9 && (
+            {/* Step 11: Features */}
+            {currentStep === 11 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Which features would be most valuable to you in an AR Islamic tool?</h3>
@@ -428,8 +489,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 10: Likelihood */}
-            {currentStep === 10 && (
+            {/* Step 12: Likelihood */}
+            {currentStep === 12 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">If this product were available in the next 12 months, how likely would you be to try it?</h3>
@@ -456,8 +517,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 11: Additional Feedback */}
-            {currentStep === 11 && (
+            {/* Step 13: Additional Feedback */}
+            {currentStep === 13 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Is there anything else that would make this more useful or appealing to you?</h3>
@@ -472,8 +533,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 12: Interview Willingness */}
-            {currentStep === 12 && (
+            {/* Step 14: Interview Willingness */}
+            {currentStep === 14 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Would you be willing to be contacted to partake in a more detailed interview to understand your specific requirements?</h3>
@@ -498,8 +559,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               </div>
             )}
 
-            {/* Step 13: Investor Presentation */}
-            {currentStep === 13 && (
+            {/* Step 15: Investor Presentation */}
+            {currentStep === 15 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-spiritual-dark mb-4">Would you like to see the Angel investor presentation for this business?</h3>
@@ -553,6 +614,11 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
                   type="submit"
                   disabled={submitMutation.isPending}
                   className="bg-spiritual-emerald hover:bg-emerald-700"
+                  onClick={() => {
+                    console.log("Submit button clicked");
+                    console.log("Form errors:", form.formState.errors);
+                    console.log("Form values:", form.getValues());
+                  }}
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {submitMutation.isPending ? "Submitting..." : "Submit"}
