@@ -22,6 +22,8 @@ export function useAdminAuth() {
       return response.json();
     },
     onSuccess: () => {
+      // Force refresh the auth status immediately
+      queryClient.setQueryData(['/api/admin/status'], { authenticated: true });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/status'] });
     },
   });

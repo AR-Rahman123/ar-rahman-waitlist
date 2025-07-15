@@ -31,6 +31,10 @@ export function AdminLogin() {
           title: "Success",
           description: "Admin authentication successful",
         });
+        // Force page refresh to ensure authenticated state is recognized
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       },
       onError: () => {
         toast({
