@@ -11,6 +11,10 @@ export function useAdminAuth() {
   const { data: authStatus, isLoading } = useQuery({
     queryKey: ['/api/admin/status'],
     retry: false,
+    // If endpoint fails, assume user needs to login
+    meta: {
+      errorHandler: () => false
+    }
   });
 
   const loginMutation = useMutation({
@@ -36,7 +40,7 @@ export function useAdminAuth() {
 
   return {
     isAuthenticated: authStatus?.authenticated === true,
-    isLoading,
+    isLoading: isLoading && !loginMutation.error, // Don't show loading if login failed
     login: loginMutation.mutate,
     logout: logoutMutation.mutate,
     loginError: loginMutation.error,

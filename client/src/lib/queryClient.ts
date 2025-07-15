@@ -37,6 +37,11 @@ export const getQueryFn: <T>(options: {
       return null;
     }
 
+    // For admin status endpoint, return false if it fails (endpoint not available)
+    if (queryKey.includes('/api/admin/status') && !res.ok) {
+      return { authenticated: false };
+    }
+
     await throwIfResNotOk(res);
     return await res.json();
   };
