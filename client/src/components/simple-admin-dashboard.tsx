@@ -27,9 +27,20 @@ export function SimpleAdminDashboard() {
     setDataLoading(true);
     try {
       const [analyticsRes, responsesRes] = await Promise.all([
-        fetch('/api/waitlist/analytics'),
-        fetch('/api/waitlist/responses')
+        fetch('/api/waitlist/analytics', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        }),
+        fetch('/api/waitlist/responses', {
+          credentials: 'include', 
+          headers: { 'Content-Type': 'application/json' }
+        })
       ]);
+
+      console.log('API Response Status:', { 
+        analytics: analyticsRes.status, 
+        responses: responsesRes.status 
+      });
 
       if (analyticsRes.ok && responsesRes.ok) {
         const analyticsData = await analyticsRes.json();
@@ -38,16 +49,22 @@ export function SimpleAdminDashboard() {
         setAnalytics(analyticsData);
         setResponses(responsesData);
         
-        console.log('Dashboard loaded:', { 
+        console.log('Dashboard loaded successfully:', { 
           analytics: analyticsData, 
-          responsesCount: responsesData.length 
+          responsesCount: responsesData.length,
+          totalFromAnalytics: analyticsData.totalResponses
         });
       } else {
+        const analyticsError = await analyticsRes.text();
+        const responsesError = await responsesRes.text();
+        console.error('API Errors:', { analyticsError, responsesError });
+        
         toast({
-          title: "Warning",
-          description: "Some dashboard data failed to load",
+          title: "Authentication Required",
+          description: "Please refresh and login again",
           variant: "destructive",
         });
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Dashboard data error:', error);
@@ -79,6 +96,7 @@ export function SimpleAdminDashboard() {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ password }),
       });
       
@@ -112,8 +130,13 @@ export function SimpleAdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      await fetch('/api/admin/logout', { 
+        method: 'POST',
+        credentials: 'include'
+      });
       setIsAuthenticated(false);
+      setResponses([]);
+      setAnalytics(null);
       toast({
         title: "Logged Out",
         description: "You have been safely logged out",
@@ -121,6 +144,41 @@ export function SimpleAdminDashboard() {
     } catch (error) {
       console.error('Logout error:', error);
     }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`/api/waitlist/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        await loadDashboardData(); // Reload data
+        toast({
+          title: "Success",
+          description: "Response deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete response",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete response",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportCSV = () => {
+    window.open('/api/backup/export-csv', '_blank');
   };
 
   if (!isAuthenticated) {
@@ -302,7 +360,7 @@ export function SimpleAdminDashboard() {
               <CardTitle className="text-white">All Responses ({responses.length})</CardTitle>
               <div className="flex gap-2">
                 <Button 
-                  onClick={() => window.open('/api/backup/export-csv', '_blank')}
+                  onClick={handleExportCSV}
                   variant="outline" 
                   size="sm"
                   className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20"
@@ -323,17 +381,28 @@ export function SimpleAdminDashboard() {
                     <th className="text-left py-2 text-purple-200">Age</th>
                     <th className="text-left py-2 text-purple-200">Prayer Frequency</th>
                     <th className="text-left py-2 text-purple-200">Date</th>
+                    <th className="text-left py-2 text-purple-200">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {responses.map((response) => (
                     <tr key={response.id} className="border-b border-purple-500/10">
-                      <td className="py-2 text-white">{response.fullName}</td>
+                      <td className="py-2 text-white">{response.full_name || response.fullName}</td>
                       <td className="py-2 text-purple-200">{response.email}</td>
                       <td className="py-2 text-purple-200">{response.age}</td>
-                      <td className="py-2 text-purple-200">{response.prayerFrequency}</td>
+                      <td className="py-2 text-purple-200">{response.prayer_frequency || response.prayerFrequency}</td>
                       <td className="py-2 text-purple-200">
-                        {new Date(response.createdAt).toLocaleDateString()}
+                        {new Date(response.created_at || response.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-2">
+                        <Button
+                          onClick={() => handleDelete(response.id)}
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </td>
                     </tr>
                   ))}
