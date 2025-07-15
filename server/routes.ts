@@ -116,8 +116,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const responses = await storage.getWaitlistResponses();
       console.log(`🔍 Admin requesting responses: Found ${responses.length} total responses`);
       console.log(`🔍 Session check: ${req.session ? 'Session exists' : 'No session'}, Auth: ${req.session?.isAdminAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
-      console.log(`🔍 User Agent: ${req.headers['user-agent']?.substring(0, 50)}...`);
-      console.log(`🔍 Request headers: ${JSON.stringify({ accept: req.headers.accept, cache: req.headers['cache-control'] })}`);
+      console.log(`🔍 Response IDs being sent: [${responses.map(r => r.id).join(', ')}]`);
+      console.log(`🔍 First response: ${JSON.stringify(responses[0], null, 2)}`);
       
       // Force bypass browser cache with aggressive headers
       res.set({
@@ -128,6 +128,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Last-Modified': new Date().toUTCString(),
         'Access-Control-Allow-Credentials': 'true'
       });
+      
+      // Log the exact JSON being sent
+      const responseJson = JSON.stringify(responses);
+      console.log(`🔍 JSON response length: ${responseJson.length} characters`);
+      console.log(`🔍 Response contains ${responses.length} items`);
       
       res.json(responses);
     } catch (error) {
