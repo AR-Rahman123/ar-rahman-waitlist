@@ -644,8 +644,9 @@ export function AnalyticsDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {responses?.map((response: any) => (
-              <div key={response.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+            {responses && responses.length > 0 ? (
+              responses.map((response: any) => (
+                <div key={response.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
                 {/* Header Section with Checkbox */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3">
@@ -795,12 +796,10 @@ export function AnalyticsDashboard() {
                   </div>
                 )}
               </div>
-            ))}
-            
-            {(!responses || responses.length === 0) && (
+              ))
+            ) : (
               <div className="text-center py-8 text-gray-500">
-                <p>No waitlist responses yet.</p>
-                <p className="text-sm">Responses will appear here as users complete the waitlist form.</p>
+                {responses === undefined ? 'Loading responses...' : `No responses found. Data: ${JSON.stringify(responses)}`}
               </div>
             )}
           </div>
