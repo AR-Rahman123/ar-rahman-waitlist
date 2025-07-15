@@ -172,7 +172,9 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced Cards**: Added backdrop blur effects and hover animations throughout
 - **Typography**: Improved contrast with white text on dark backgrounds
 - **Rollback Ready**: Original design backed up in `/backups/current-design/` with rollback script
-- **Current Status**: New dark theme active with `rollback-design.sh` script available for easy reversion
+- **Side-by-side Hero**: Large text on left, video on right matching reference site layout
+- **Form Issue Resolution**: Fixed waitlist form submission that stopped working after design changes
+- **Current Status**: New dark theme active with working form submission and rollback protection
 
 ### Analytics Dashboard Enhancements (Previous)
 - Resolved critical deployment/caching issues that were preventing dashboard updates from showing
