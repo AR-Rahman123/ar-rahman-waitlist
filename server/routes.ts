@@ -110,14 +110,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get waitlist responses (admin only - bypass auth in development)
-  app.get("/api/waitlist/responses", (req, res, next) => {
-    // Skip auth in development for easier testing
-    if (process.env.NODE_ENV === 'development') {
-      return next();
-    }
-    requireAdminAuth(req, res, next);
-  }, async (req, res) => {
+  // Get all waitlist responses (admin only)
+  app.get("/api/waitlist/responses", requireAdminAuth, async (req, res) => {
     try {
       const responses = await storage.getWaitlistResponses();
       res.json(responses);
@@ -144,14 +138,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get analytics data (admin only - bypass auth in development)
-  app.get("/api/waitlist/analytics", (req, res, next) => {
-    // Skip auth in development for easier testing
-    if (process.env.NODE_ENV === 'development') {
-      return next();
-    }
-    requireAdminAuth(req, res, next);
-  }, async (req, res) => {
+  // Get analytics data (admin only)
+  app.get("/api/waitlist/analytics", requireAdminAuth, async (req, res) => {
     try {
       const analytics = await storage.getWaitlistAnalytics();
       res.json(analytics);

@@ -41,21 +41,19 @@ export function useAdminAuth() {
     },
   });
 
-  // Check localStorage as fallback for authentication  
-  const localAuthStatus = typeof window !== 'undefined' ? localStorage.getItem('adminAuthenticated') === 'true' : false;
-  const isAuthenticated = authStatus?.authenticated === true || localAuthStatus;
+  // Only use server authentication status, not localStorage
+  const isAuthenticated = authStatus?.authenticated === true;
   
-  // Don't clear localStorage automatically - let user logout explicitly
-  // React.useEffect(() => {
-  //   if (typeof window !== 'undefined' && !authStatus?.authenticated) {
-  //     localStorage.removeItem('adminAuthenticated');
-  //   }
-  // }, [authStatus]);
+  // Clear localStorage on startup if server says not authenticated
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && authStatus?.authenticated === false) {
+      localStorage.removeItem('adminAuthenticated');
+    }
+  }, [authStatus]);
 
   // Debug authentication state
   console.log('Auth Debug:', { 
     authStatus: authStatus?.authenticated, 
-    localAuthStatus, 
     isAuthenticated,
     isLoading,
     error: error?.message 
@@ -63,7 +61,7 @@ export function useAdminAuth() {
 
   return {
     isAuthenticated,
-    isLoading: isLoading && !error && !localAuthStatus, // Don't show loading if we have local auth
+    isLoading: isLoading && !error,
     login: loginMutation.mutate,
     logout: (data, options) => {
       localStorage.removeItem('adminAuthenticated');
