@@ -57,6 +57,8 @@ export function SimpleAdminDashboard() {
   const loadDashboardData = async () => {
     setDataLoading(true);
     try {
+      console.log('🔄 Starting dashboard data load...');
+      
       const [analyticsRes, responsesRes] = await Promise.all([
         fetch('/api/waitlist/analytics', {
           credentials: 'include',
@@ -68,34 +70,38 @@ export function SimpleAdminDashboard() {
         })
       ]);
 
-      console.log('API Response Status:', { 
-        analytics: analyticsRes.status, 
-        responses: responsesRes.status,
-        analyticsOk: analyticsRes.ok,
-        responsesOk: responsesRes.ok
+      console.log('📡 API Response Status:', { 
+        analytics: { status: analyticsRes.status, ok: analyticsRes.ok },
+        responses: { status: responsesRes.status, ok: responsesRes.ok }
       });
 
       if (analyticsRes.ok && responsesRes.ok) {
         const analyticsData = await analyticsRes.json();
         const responsesData = await responsesRes.json();
         
+        console.log('✅ Raw Response Data:', {
+          analyticsTotal: analyticsData?.totalResponses,
+          responsesType: typeof responsesData,
+          responsesIsArray: Array.isArray(responsesData),
+          responsesLength: responsesData?.length,
+          firstResponse: responsesData?.[0]
+        });
+        
         setAnalytics(analyticsData);
         setResponses(responsesData);
         
-        console.log('🔍 Dashboard Data Loaded:', { 
+        console.log('🎯 State Updated - Dashboard loaded with:', { 
           analyticsTotal: analyticsData.totalResponses,
-          responsesReceived: responsesData.length,
-          responseIds: responsesData.map(r => r.id),
-          firstThreeNames: responsesData.slice(0, 3).map(r => r.full_name || r.fullName),
-          lastThreeNames: responsesData.slice(-3).map(r => r.full_name || r.fullName)
+          responsesInState: responsesData.length,
+          allResponseIds: responsesData.map(r => r.id),
+          allNames: responsesData.map(r => r.full_name || r.fullName)
         });
 
-        // Force console log of all response data for debugging
+        // Table view of all responses for debugging
         console.table(responsesData.map(r => ({
           id: r.id,
           name: r.full_name || r.fullName,
-          email: r.email,
-          created: r.created_at || r.createdAt
+          email: r.email
         })));
       } else {
         console.error('❌ API Response Failed:', { 
@@ -168,6 +174,12 @@ export function SimpleAdminDashboard() {
         setTimeout(() => {
           console.log('🔄 Loading dashboard data after login...');
           loadDashboardData();
+          
+          // Force page refresh to clear any caching issues
+          setTimeout(() => {
+            console.log('🔄 Refreshing page to clear cache...');
+            window.location.reload();
+          }, 500);
         }, 200);
       } else {
         toast({
