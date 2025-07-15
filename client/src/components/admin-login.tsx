@@ -31,6 +31,8 @@ export function AdminLogin() {
           title: "Success",
           description: "Admin authentication successful",
         });
+        // Store authentication in localStorage as backup
+        localStorage.setItem('adminAuthenticated', 'true');
         // Force page refresh to ensure authenticated state is recognized
         setTimeout(() => {
           window.location.reload();

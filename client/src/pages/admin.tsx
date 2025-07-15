@@ -38,9 +38,9 @@ export default function Admin() {
     });
   };
 
-  // Determine what to show
-  const shouldShowLogin = !isAuthenticated || (isLoading && showLogin);
-  const shouldShowLoading = isLoading && !showLogin && !isAuthenticated;
+  // Determine what to show - prioritize authentication over loading states
+  const shouldShowLogin = !isAuthenticated && !isLoading;
+  const shouldShowLoading = isLoading && !isAuthenticated && !showLogin;
 
   if (shouldShowLogin) {
     return <AdminLogin />;

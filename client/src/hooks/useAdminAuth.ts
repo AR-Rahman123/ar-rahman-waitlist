@@ -39,11 +39,18 @@ export function useAdminAuth() {
     },
   });
 
+  // Check localStorage as fallback for authentication
+  const localAuthStatus = typeof window !== 'undefined' ? localStorage.getItem('adminAuthenticated') === 'true' : false;
+  const isAuthenticated = authStatus?.authenticated === true || localAuthStatus;
+
   return {
-    isAuthenticated: authStatus?.authenticated === true,
-    isLoading: isLoading && !error, // Don't show loading if there's an error
+    isAuthenticated,
+    isLoading: isLoading && !error && !localAuthStatus, // Don't show loading if we have local auth
     login: loginMutation.mutate,
-    logout: logoutMutation.mutate,
+    logout: (data, options) => {
+      localStorage.removeItem('adminAuthenticated');
+      logoutMutation.mutate(data, options);
+    },
     loginError: loginMutation.error,
     isLoggingIn: loginMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
