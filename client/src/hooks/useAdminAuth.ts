@@ -8,13 +8,12 @@ interface AdminAuthData {
 export function useAdminAuth() {
   const queryClient = useQueryClient();
 
-  const { data: authStatus, isLoading } = useQuery({
+  const { data: authStatus, isLoading, error } = useQuery({
     queryKey: ['/api/admin/status'],
     retry: false,
-    // If endpoint fails, assume user needs to login
-    meta: {
-      errorHandler: () => false
-    }
+    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+    refetchInterval: false,
+    refetchOnWindowFocus: false
   });
 
   const loginMutation = useMutation({
@@ -40,7 +39,7 @@ export function useAdminAuth() {
 
   return {
     isAuthenticated: authStatus?.authenticated === true,
-    isLoading: isLoading && !loginMutation.error, // Don't show loading if login failed
+    isLoading: isLoading && !error, // Don't show loading if there's an error
     login: loginMutation.mutate,
     logout: logoutMutation.mutate,
     loginError: loginMutation.error,

@@ -1,3 +1,4 @@
+import React from "react";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { AdminLogin } from "@/components/admin-login";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -10,28 +11,21 @@ import { useToast } from "@/hooks/use-toast";
 export default function Admin() {
   const { isAuthenticated, isLoading, logout, isLoggingOut } = useAdminAuth();
   const { toast } = useToast();
+  const [showLogin, setShowLogin] = React.useState(false);
 
-  // Skip loading state if it takes too long - go straight to login
-  if (isLoading) {
-    setTimeout(() => {
-      // Force re-render after 2 seconds if still loading
-      window.location.reload();
-    }, 2000);
+  // Show login form after 1 second if still loading
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setShowLogin(true);
+      }, 1000);
+    }
     
-    return (
-      <div className="min-h-screen bg-spiritual-light flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="w-8 h-8 text-spiritual-blue mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-600">Checking authentication...</p>
-          <p className="text-sm text-gray-500 mt-2">If this takes too long, we'll show the login form...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <AdminLogin />;
-  }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isLoading]);
 
   const handleLogout = () => {
     logout(undefined, {
@@ -43,6 +37,25 @@ export default function Admin() {
       },
     });
   };
+
+  // Determine what to show
+  const shouldShowLogin = !isAuthenticated || (isLoading && showLogin);
+  const shouldShowLoading = isLoading && !showLogin && !isAuthenticated;
+
+  if (shouldShowLogin) {
+    return <AdminLogin />;
+  }
+
+  if (shouldShowLoading) {
+    return (
+      <div className="min-h-screen bg-spiritual-light flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-8 h-8 text-spiritual-blue mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-spiritual-light">
@@ -59,15 +72,13 @@ export default function Admin() {
               </Link>
               <h1 className="text-2xl font-bold text-spiritual-dark">Admin Dashboard</h1>
             </div>
-            
             <Button 
+              variant="outline" 
+              size="sm" 
               onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
               disabled={isLoggingOut}
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 mr-2" />
               {isLoggingOut ? "Logging out..." : "Logout"}
             </Button>
           </div>
@@ -75,18 +86,7 @@ export default function Admin() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-spiritual-dark">AR Rahman Waitlist Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">
-              Monitor waitlist signups, analyze user responses, and track engagement metrics.
-            </p>
-          </CardContent>
-        </Card>
-
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <AnalyticsDashboard />
       </main>
     </div>
