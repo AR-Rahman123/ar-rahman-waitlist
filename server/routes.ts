@@ -113,11 +113,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all waitlist responses (admin only)
   app.get("/api/waitlist/responses", requireAdminAuth, async (req, res) => {
     try {
-      const responses = await storage.getWaitlistResponses();
-      console.log(`🔍 Admin requesting responses: Found ${responses.length} total responses`);
-      console.log(`🔍 Session check: ${req.session ? 'Session exists' : 'No session'}, Auth: ${req.session?.isAdminAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
+      console.log(`🚀 DIRECT DATABASE TEST - bypassing storage layer`);
+      
+      // Direct database connection bypass
+      const { pool } = await import("./db");
+      const directResult = await pool.query(`
+        SELECT id, full_name, email, role, age, prayer_frequency, 
+               arabic_understanding, understanding_difficulty, importance,
+               learning_struggle, current_approach, ar_experience, ar_interest,
+               features, likelihood, additional_feedback, interview_willingness,
+               investor_presentation, additional_comments, created_at
+        FROM waitlist_responses 
+        ORDER BY created_at DESC
+      `);
+      
+      console.log(`🔍 DIRECT QUERY: Found ${directResult.rows.length} rows`);
+      console.log(`🔍 IDs from direct query: [${directResult.rows.map(r => r.id).join(', ')}]`);
+      
+      // Also try storage layer for comparison
+      const storageResult = await storage.getWaitlistResponses();
+      console.log(`🔍 STORAGE LAYER: Found ${storageResult.length} responses`);
+      console.log(`🔍 IDs from storage: [${storageResult.map(r => r.id).join(', ')}]`);
+      
+      // Use direct result as source of truth
+      const responses = directResult.rows;
+      
       console.log(`🔍 Response IDs being sent: [${responses.map(r => r.id).join(', ')}]`);
-      console.log(`🔍 First response: ${JSON.stringify(responses[0], null, 2)}`);
       
       // Force bypass browser cache with aggressive headers
       res.set({

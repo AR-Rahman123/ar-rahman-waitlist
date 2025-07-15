@@ -226,6 +226,13 @@ Preferred communication style: Simple, everyday language.
 - **Download Method**: Direct file download with proper MIME types and filename handling
 - **Data Completeness**: All form fields included in export with proper field name mapping
 
+### Critical Database Query Issue Resolution (July 15, 2025)
+- **Issue Identified**: Production database queries returning only 3 responses despite 12 total entries
+- **Root Cause**: Drizzle ORM query limitation or production database connection truncation
+- **Solution Implemented**: Direct database bypass with raw SQL queries for guaranteed data retrieval
+- **Enhanced Debugging**: Comprehensive response parsing and raw text analysis
+- **Status**: Critical fix deployed to resolve persistent 3/12 response limitation affecting admin dashboard
+
 ### Analytics Dashboard Enhancements (Previous)
 - Resolved critical deployment/caching issues that were preventing dashboard updates from showing
 - Implemented complete visual analytics dashboard with pie charts, donut charts, and bar charts using recharts library

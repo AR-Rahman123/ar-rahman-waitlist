@@ -104,8 +104,25 @@ export function SimpleAdminDashboard() {
           dataIsArray: Array.isArray(responsesData),
           dataLength: responsesData?.length || 0,
           firstIds: responsesData?.slice(0, 5).map(r => r.id) || [],
-          lastIds: responsesData?.slice(-5).map(r => r.id) || []
+          lastIds: responsesData?.slice(-5).map(r => r.id) || [],
+          fullResponseText: JSON.stringify(responsesData).substring(0, 500) + '...'
         });
+        
+        // Try to understand why only 3 responses are coming through
+        if (responsesData?.length === 3) {
+          console.log('❌ CRITICAL: Only 3 responses received! Full data:', responsesData);
+          
+          // Test if the issue is in parsing
+          const rawText = await responsesRes.clone().text();
+          console.log('🔍 RAW RESPONSE TEXT (first 1000 chars):', rawText.substring(0, 1000));
+          
+          try {
+            const reparsed = JSON.parse(rawText);
+            console.log('🔍 REPARSED LENGTH:', reparsed.length);
+          } catch (e) {
+            console.log('❌ JSON PARSE ERROR:', e);
+          }
+        }
         
         setAnalytics(analyticsData);
         setResponses(responsesData);
