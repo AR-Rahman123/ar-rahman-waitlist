@@ -9,6 +9,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import React from "react";
 
 export function AnalyticsDashboard() {
   const { toast } = useToast();
@@ -16,12 +17,24 @@ export function AnalyticsDashboard() {
   const [selectedResponses, setSelectedResponses] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
+  // Clear cache and force fresh data load on component mount
+  React.useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['/api/waitlist/responses'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/waitlist/analytics'] });
+  }, [queryClient]);
+
   const { data: analytics, isLoading } = useQuery({
     queryKey: ['/api/waitlist/analytics'],
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const { data: responses } = useQuery({
     queryKey: ['/api/waitlist/responses'],
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const deleteMutation = useMutation({
