@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import React from "react";
 
 interface AdminAuthData {
   password: string;
@@ -39,9 +40,25 @@ export function useAdminAuth() {
     },
   });
 
-  // Check localStorage as fallback for authentication
+  // Check localStorage as fallback for authentication  
   const localAuthStatus = typeof window !== 'undefined' ? localStorage.getItem('adminAuthenticated') === 'true' : false;
   const isAuthenticated = authStatus?.authenticated === true || localAuthStatus;
+  
+  // Clear any stale localStorage on startup
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && !authStatus?.authenticated) {
+      localStorage.removeItem('adminAuthenticated');
+    }
+  }, [authStatus]);
+
+  // Debug authentication state
+  console.log('Auth Debug:', { 
+    authStatus: authStatus?.authenticated, 
+    localAuthStatus, 
+    isAuthenticated,
+    isLoading,
+    error: error?.message 
+  });
 
   return {
     isAuthenticated,

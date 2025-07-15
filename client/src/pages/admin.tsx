@@ -38,9 +38,9 @@ export default function Admin() {
     });
   };
 
-  // Determine what to show - prioritize authentication over loading states
-  const shouldShowLogin = !isAuthenticated && !isLoading;
-  const shouldShowLoading = isLoading && !isAuthenticated && !showLogin;
+  // Force show login if not authenticated (simplified logic)
+  const shouldShowLogin = !isAuthenticated;
+  const shouldShowLoading = false; // Disable loading screen
 
   if (shouldShowLogin) {
     return <AdminLogin />;
