@@ -11,12 +11,19 @@ export default function Admin() {
   const { isAuthenticated, isLoading, logout, isLoggingOut } = useAdminAuth();
   const { toast } = useToast();
 
+  // Skip loading state if it takes too long - go straight to login
   if (isLoading) {
+    setTimeout(() => {
+      // Force re-render after 2 seconds if still loading
+      window.location.reload();
+    }, 2000);
+    
     return (
       <div className="min-h-screen bg-spiritual-light flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-8 h-8 text-spiritual-blue mx-auto mb-4 animate-pulse" />
           <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-sm text-gray-500 mt-2">If this takes too long, we'll show the login form...</p>
         </div>
       </div>
     );
