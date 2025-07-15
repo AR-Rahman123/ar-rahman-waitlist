@@ -53,6 +53,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
 
   const form = useForm<WaitlistFormData>({
     resolver: zodResolver(waitlistSchema),
+    mode: "onChange", // Enable real-time validation
     defaultValues: {
       fullName: "",
       email: "",
@@ -616,34 +617,28 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
               )}
               {currentStep === totalSteps && (
                 <Button
-                  type="submit"
+                  type="button"
                   disabled={submitMutation.isPending}
                   className="bg-spiritual-emerald hover:bg-emerald-700"
-                  onClick={(e) => {
-                    console.log("Submit button clicked");
-                    console.log("Form errors:", form.formState.errors);
-                    console.log("Form values:", form.getValues());
-                    console.log("Form valid:", form.formState.isValid);
-                    console.log("Event:", e);
-                    
-                    // Force form submission if React form handler isn't working
+                  onClick={async () => {
+                    // Direct submission bypass to avoid form handler issues
                     const formData = form.getValues();
-                    console.log("Forcing submission with data:", formData);
                     
-                    // Check if all required fields are filled
+                    // Validate required fields
                     const requiredFields = ['fullName', 'email', 'age', 'prayerFrequency', 'arabicUnderstanding', 'understandingDifficulty', 'importance', 'learningStruggle', 'currentApproach', 'arExperience', 'arInterest', 'features', 'interviewWillingness', 'investorPresentation'];
                     const missingFields = requiredFields.filter(field => !formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0));
                     
                     if (missingFields.length > 0) {
-                      console.log("Missing required fields:", missingFields);
+                      toast({
+                        title: "Missing Information",
+                        description: `Please fill in: ${missingFields.join(', ')}`,
+                        variant: "destructive",
+                      });
                       return;
                     }
                     
-                    // Manually trigger submission if form validation is stuck
-                    if (!form.formState.isSubmitting) {
-                      console.log("Manually triggering onSubmit");
-                      onSubmit(formData);
-                    }
+                    // Submit directly
+                    onSubmit(formData);
                   }}
                 >
                   <Send className="w-4 h-4 mr-2" />
