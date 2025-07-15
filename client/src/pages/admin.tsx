@@ -1,7 +1,7 @@
 import React from "react";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { AdminLogin } from "@/components/admin-login";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useSimpleAdminAuth } from "@/hooks/useSimpleAdminAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LogOut, Shield } from "lucide-react";
@@ -9,7 +9,7 @@ import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Admin() {
-  const { isAuthenticated, isLoading, logout, isLoggingOut } = useAdminAuth();
+  const { isAuthenticated, isLoading, logout, isLoggingOut } = useSimpleAdminAuth();
   const { toast } = useToast();
   const [showLogin, setShowLogin] = React.useState(false);
 

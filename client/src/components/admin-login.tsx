@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield, Eye, EyeOff } from "lucide-react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useSimpleAdminAuth } from "@/hooks/useSimpleAdminAuth";
 import { useToast } from "@/hooks/use-toast";
 
 export function AdminLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
-  const { login, isLoggingIn, loginError } = useAdminAuth();
+  const { login, isLoggingIn, loginError } = useSimpleAdminAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,21 +27,13 @@ export function AdminLogin() {
 
     login({ password }, {
       onSuccess: () => {
-        // Store authentication in localStorage immediately
-        localStorage.setItem('adminAuthenticated', 'true');
-        
         toast({
           title: "Success", 
           description: "Admin authentication successful",
         });
         
-        // Navigate to dashboard without refresh to avoid HMR issues
-        setTimeout(() => {
-          queryClient.setQueryData(['/api/admin/status'], { authenticated: true });
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/status'] });
-          // Use location.href instead of reload to avoid React state issues
-          window.location.href = '/admin';
-        }, 300);
+        // Auth will be refreshed automatically by the hook
+        setTimeout(() => window.location.reload(), 500);
       },
       onError: () => {
         toast({

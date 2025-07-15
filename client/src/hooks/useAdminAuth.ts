@@ -23,10 +23,11 @@ export function useAdminAuth() {
       return response.json();
     },
     onSuccess: () => {
-      // Store in localStorage and update cache immediately
-      localStorage.setItem('adminAuthenticated', 'true');
+      // Set authenticated state immediately and force refresh
       queryClient.setQueryData(['/api/admin/status'], { authenticated: true });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/status'] });
+      // Force page reload to ensure clean state
+      setTimeout(() => window.location.reload(), 500);
     },
   });
 
@@ -41,15 +42,8 @@ export function useAdminAuth() {
     },
   });
 
-  // Only use server authentication status, not localStorage
+  // Use server authentication status only
   const isAuthenticated = authStatus?.authenticated === true;
-  
-  // Clear localStorage on startup if server says not authenticated
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && authStatus?.authenticated === false) {
-      localStorage.removeItem('adminAuthenticated');
-    }
-  }, [authStatus]);
 
   // Debug authentication state
   console.log('Auth Debug:', { 
@@ -64,7 +58,8 @@ export function useAdminAuth() {
     isLoading: isLoading && !error,
     login: loginMutation.mutate,
     logout: (data, options) => {
-      localStorage.removeItem('adminAuthenticated');
+      // Clear cache and logout
+      queryClient.setQueryData(['/api/admin/status'], { authenticated: false });
       logoutMutation.mutate(data, options);
     },
     loginError: loginMutation.error,

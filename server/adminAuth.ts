@@ -13,7 +13,9 @@ export function verifyAdminPassword(password: string): boolean {
 }
 
 export function isAdminAuthenticated(req: any): boolean {
-  return (req.session as any)?.adminAuthenticated === true;
+  const isAuth = (req.session as any)?.adminAuthenticated === true;
+  console.log('Admin auth check:', { sessionId: req.session?.id, isAuth });
+  return isAuth;
 }
 
 export function requireAdminAuth(req: any, res: any, next: any) {
