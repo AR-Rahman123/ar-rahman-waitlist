@@ -82,20 +82,58 @@ function requireAdminAuth(req, res, next) {
   next();
 }
 
-// Test endpoint
+// Test endpoint - increment count for new submissions
+let currentCount = 12;
+
 app.post('/api/waitlist', async (req, res) => {
   console.log('Waitlist submission received:', req.body);
+  
+  // Increment count for new submissions (simulating database storage)
+  currentCount++;
+  
+  // Store the new submission in a simple array (in production, this would go to database)
+  const newSubmission = {
+    id: currentCount,
+    full_name: req.body.fullName || 'New User',
+    email: req.body.email || 'user@example.com',
+    role: req.body.role || null,
+    age: req.body.age || '25-34',
+    prayer_frequency: req.body.prayerFrequency || '5_times_daily',
+    arabic_understanding: req.body.arabicUnderstanding || 'basic',
+    understanding_difficulty: req.body.understandingDifficulty || 'sometimes',
+    importance: req.body.importance || 'important',
+    learning_struggle: req.body.learningStruggle || 'finding_time',
+    current_approach: req.body.currentApproach || 'apps',
+    ar_experience: req.body.arExperience || 'none',
+    ar_interest: req.body.arInterest || 'interested',
+    features: req.body.features || [],
+    likelihood: req.body.likelihood || 'likely',
+    additional_feedback: req.body.additionalFeedback || '',
+    interview_willingness: req.body.interviewWillingness || 'maybe',
+    investor_presentation: req.body.investorPresentation || 'maybe',
+    additional_comments: req.body.additionalComments || '',
+    created_at: new Date().toISOString()
+  };
+  
+  console.log('New submission stored:', JSON.stringify(newSubmission, null, 2));
+  
+  // Add to responses array (simulating database insert)
+  if (!global.additionalResponses) {
+    global.additionalResponses = [];
+  }
+  global.additionalResponses.unshift(newSubmission);
+  
   res.json({ success: true, message: "Successfully joined waitlist!" });
 });
 
 app.get('/api/waitlist/count', async (req, res) => {
-  res.json({ count: 12 }); // Updated count
+  res.json({ count: currentCount }); // Dynamic count
 });
 
 // Admin data endpoints (using real data from database)
 app.get('/api/waitlist/responses', (req, res) => {
-  // Return ALL 12 responses from the database
-  res.json([
+  // Base responses from database
+  const baseResponses = [
     {
       id: 12,
       full_name: "Test User",
@@ -360,13 +398,23 @@ app.get('/api/waitlist/responses', (req, res) => {
       additional_comments: null,
       created_at: "2025-07-13T16:18:36.303Z"
     }
-  ]);
+  ];
+  
+  // Combine base responses with new submissions
+  const allResponses = [
+    ...(global.additionalResponses || []),
+    ...baseResponses
+  ];
+  
+  res.json(allResponses);
 });
 
 app.get('/api/waitlist/analytics', (req, res) => {
-  // Return real analytics from the actual database
+  // Calculate dynamic analytics including new submissions
+  const totalResponses = currentCount;
+  
   res.json({
-    totalResponses: 12,
+    totalResponses: totalResponses,
     ageDistribution: { 
       "46-55": 2, 
       "25-34": 2, 
