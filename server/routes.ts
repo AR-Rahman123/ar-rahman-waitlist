@@ -20,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (verifyAdminPassword(password)) {
-        (req.session as any).adminAuthenticated = true;
+        (req.session as any).isAdminAuthenticated = true;
         res.json({ 
           success: true, 
           message: "Admin authentication successful" 
@@ -41,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/admin/logout", async (req, res) => {
-    (req.session as any).adminAuthenticated = false;
+    (req.session as any).isAdminAuthenticated = false;
     res.json({ 
       success: true, 
       message: "Admin logged out successfully" 
@@ -50,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/status", async (req, res) => {
     res.json({ 
-      authenticated: (req.session as any)?.adminAuthenticated === true 
+      authenticated: (req.session as any)?.isAdminAuthenticated === true 
     });
   });
 

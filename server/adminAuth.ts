@@ -13,8 +13,13 @@ export function verifyAdminPassword(password: string): boolean {
 }
 
 export function isAdminAuthenticated(req: any): boolean {
-  const isAuth = (req.session as any)?.adminAuthenticated === true;
-  console.log('Admin auth check:', { sessionId: req.session?.id, isAuth });
+  const isAuth = !!(req.session as any)?.isAdminAuthenticated;
+  console.log('Admin auth check:', { 
+    sessionId: req.sessionID, 
+    isAuth: isAuth,
+    sessionExists: !!req.session,
+    adminFlag: (req.session as any)?.isAdminAuthenticated
+  });
   return isAuth;
 }
 

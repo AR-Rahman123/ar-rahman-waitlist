@@ -18,6 +18,35 @@ export function SimpleAdminDashboard() {
   const [selectAll, setSelectAll] = useState(false);
   const { toast } = useToast();
 
+  // Check authentication status on component mount only once
+  useEffect(() => {
+    let mounted = true;
+    
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch('/api/admin/status', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok && mounted) {
+          const data = await response.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+    
+    checkAuthStatus();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // Load dashboard data when authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -54,19 +83,29 @@ export function SimpleAdminDashboard() {
         console.log('Dashboard loaded successfully:', { 
           analytics: analyticsData, 
           responsesCount: responsesData.length,
-          totalFromAnalytics: analyticsData.totalResponses
+          totalFromAnalytics: analyticsData.totalResponses,
+          sampleResponses: responsesData.slice(0, 3).map(r => ({ id: r.id, name: r.full_name || r.fullName }))
         });
       } else {
-        const analyticsError = await analyticsRes.text();
-        const responsesError = await responsesRes.text();
-        console.error('API Errors:', { analyticsError, responsesError });
-        
-        toast({
-          title: "Authentication Required",
-          description: "Please refresh and login again",
-          variant: "destructive",
+        console.error('API Response Errors:', { 
+          analyticsStatus: analyticsRes.status, 
+          responsesStatus: responsesRes.status 
         });
-        setIsAuthenticated(false);
+        
+        if (analyticsRes.status === 401 || responsesRes.status === 401) {
+          toast({
+            title: "Session Expired",
+            description: "Please login again",
+            variant: "destructive",
+          });
+          setIsAuthenticated(false);
+        } else {
+          toast({
+            title: "Data Load Error",
+            description: "Failed to load dashboard data",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error('Dashboard data error:', error);
@@ -110,6 +149,8 @@ export function SimpleAdminDashboard() {
           title: "Success",
           description: "Admin authentication successful",
         });
+        // Force immediate data load after successful login
+        loadDashboardData();
       } else {
         toast({
           title: "Access Denied",
