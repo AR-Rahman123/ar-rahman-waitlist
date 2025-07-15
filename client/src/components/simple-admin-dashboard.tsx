@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, ArrowLeft, Users, TrendingUp, Target, Heart, Download, Trash2 } from "lucide-react";
+import { Shield, ArrowLeft, Users, TrendingUp, Target, Heart, Download, Trash2, Database, CheckSquare, Square } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
@@ -14,6 +14,8 @@ export function SimpleAdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [responses, setResponses] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [selectedResponses, setSelectedResponses] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   const { toast } = useToast();
 
   // Load dashboard data when authenticated
@@ -179,6 +181,94 @@ export function SimpleAdminDashboard() {
 
   const handleExportCSV = () => {
     window.open('/api/backup/export-csv', '_blank');
+  };
+
+  const handleBackup = async () => {
+    try {
+      const response = await fetch('/api/backup/create', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Database backup created successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create backup",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Backup error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create backup",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedResponses([]);
+    } else {
+      setSelectedResponses(responses.map(r => r.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectResponse = (id) => {
+    if (selectedResponses.includes(id)) {
+      setSelectedResponses(selectedResponses.filter(responseId => responseId !== id));
+    } else {
+      setSelectedResponses([...selectedResponses, id]);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedResponses.length === 0) {
+      toast({
+        title: "Warning",
+        description: "Please select responses to delete",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete ${selectedResponses.length} response(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      for (const id of selectedResponses) {
+        await fetch(`/api/waitlist/${id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      await loadDashboardData();
+      setSelectedResponses([]);
+      setSelectAll(false);
+      
+      toast({
+        title: "Success",
+        description: `${selectedResponses.length} response(s) deleted successfully`,
+      });
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete responses",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!isAuthenticated) {
@@ -368,6 +458,26 @@ export function SimpleAdminDashboard() {
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
                 </Button>
+                <Button 
+                  onClick={handleBackup}
+                  variant="outline" 
+                  size="sm"
+                  className="border-blue-500/30 text-blue-200 hover:bg-blue-500/20"
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  Backup
+                </Button>
+                {selectedResponses.length > 0 && (
+                  <Button 
+                    onClick={handleBulkDelete}
+                    variant="outline" 
+                    size="sm"
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/20"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Selected ({selectedResponses.length})
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -376,6 +486,14 @@ export function SimpleAdminDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-purple-500/20">
+                    <th className="text-left py-2 text-purple-200">
+                      <div className="flex items-center space-x-2">
+                        <button onClick={handleSelectAll} className="text-purple-200 hover:text-white">
+                          {selectAll ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                        </button>
+                        <span>Select All</span>
+                      </div>
+                    </th>
                     <th className="text-left py-2 text-purple-200">Name</th>
                     <th className="text-left py-2 text-purple-200">Email</th>
                     <th className="text-left py-2 text-purple-200">Age</th>
@@ -387,6 +505,17 @@ export function SimpleAdminDashboard() {
                 <tbody>
                   {responses.map((response) => (
                     <tr key={response.id} className="border-b border-purple-500/10">
+                      <td className="py-2">
+                        <button 
+                          onClick={() => handleSelectResponse(response.id)}
+                          className="text-purple-200 hover:text-white"
+                        >
+                          {selectedResponses.includes(response.id) ? 
+                            <CheckSquare className="w-4 h-4" /> : 
+                            <Square className="w-4 h-4" />
+                          }
+                        </button>
+                      </td>
                       <td className="py-2 text-white">{response.full_name || response.fullName}</td>
                       <td className="py-2 text-purple-200">{response.email}</td>
                       <td className="py-2 text-purple-200">{response.age}</td>
