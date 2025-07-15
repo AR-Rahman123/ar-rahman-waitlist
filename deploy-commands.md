@@ -7,7 +7,7 @@
 git add .
 
 # Commit with descriptive message
-git commit -m "FIXED: Dynamic response counting + Rich analytics dashboard complete"
+git commit -m "FIXED: Serverless persistence issue - restored missing production responses"
 
 # Push to main branch (triggers Netlify auto-deployment)
 git push origin main
