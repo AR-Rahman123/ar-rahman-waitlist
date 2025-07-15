@@ -111,17 +111,7 @@ export function SimpleAdminDashboard() {
         // Try to understand why only 3 responses are coming through
         if (responsesData?.length === 3) {
           console.log('❌ CRITICAL: Only 3 responses received! Full data:', responsesData);
-          
-          // Test if the issue is in parsing
-          const rawText = await responsesRes.clone().text();
-          console.log('🔍 RAW RESPONSE TEXT (first 1000 chars):', rawText.substring(0, 1000));
-          
-          try {
-            const reparsed = JSON.parse(rawText);
-            console.log('🔍 REPARSED LENGTH:', reparsed.length);
-          } catch (e) {
-            console.log('❌ JSON PARSE ERROR:', e);
-          }
+          console.log('❌ Expected 12 but got 3 - this indicates server truncation issue');
         }
         
         setAnalytics(analyticsData);
