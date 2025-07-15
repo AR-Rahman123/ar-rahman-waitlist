@@ -116,12 +116,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const responses = await storage.getWaitlistResponses();
       console.log(`🔍 Admin requesting responses: Found ${responses.length} total responses`);
       console.log(`🔍 Session check: ${req.session ? 'Session exists' : 'No session'}, Auth: ${req.session?.isAdminAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
+      console.log(`🔍 User Agent: ${req.headers['user-agent']?.substring(0, 50)}...`);
+      console.log(`🔍 Request headers: ${JSON.stringify({ accept: req.headers.accept, cache: req.headers['cache-control'] })}`);
       
-      // Add no-cache headers to prevent browser caching issues
+      // Force bypass browser cache with aggressive headers
       res.set({
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        'ETag': 'W/"' + Date.now() + '"',
+        'Last-Modified': new Date().toUTCString(),
+        'Access-Control-Allow-Credentials': 'true'
       });
       
       res.json(responses);

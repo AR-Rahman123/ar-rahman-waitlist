@@ -64,7 +64,9 @@ export function SimpleAdminDashboard() {
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' }
         }),
-        fetch('/api/waitlist/responses', {
+        fetch('/api/waitlist/responses?' + new URLSearchParams({
+          t: Date.now().toString()
+        }), {
           credentials: 'include', 
           headers: { 
             'Content-Type': 'application/json',
@@ -97,7 +99,12 @@ export function SimpleAdminDashboard() {
           responseHeaders: responsesRes.headers.get('content-length'),
           responseContentType: responsesRes.headers.get('content-type'),
           responseCache: responsesRes.headers.get('cache-control'),
-          fullResponseData: responsesData
+          responseUrl: responsesRes.url,
+          responseStatus: responsesRes.status,
+          dataIsArray: Array.isArray(responsesData),
+          dataLength: responsesData?.length || 0,
+          firstIds: responsesData?.slice(0, 5).map(r => r.id) || [],
+          lastIds: responsesData?.slice(-5).map(r => r.id) || []
         });
         
         setAnalytics(analyticsData);
