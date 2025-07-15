@@ -38,9 +38,9 @@ export default function Admin() {
     });
   };
 
-  // Force show login if not authenticated (simplified logic)
-  const shouldShowLogin = !isAuthenticated;
-  const shouldShowLoading = false; // Disable loading screen
+  // Force show login if not authenticated but allow brief loading
+  const shouldShowLogin = !isAuthenticated && !isLoading;
+  const shouldShowLoading = isLoading && !isAuthenticated;
 
   if (shouldShowLogin) {
     return <AdminLogin />;

@@ -27,16 +27,21 @@ export function AdminLogin() {
 
     login({ password }, {
       onSuccess: () => {
+        // Store authentication in localStorage immediately
+        localStorage.setItem('adminAuthenticated', 'true');
+        
         toast({
-          title: "Success",
+          title: "Success", 
           description: "Admin authentication successful",
         });
-        // Store authentication in localStorage as backup
-        localStorage.setItem('adminAuthenticated', 'true');
-        // Force page refresh to ensure authenticated state is recognized
+        
+        // Navigate to dashboard without refresh to avoid HMR issues
         setTimeout(() => {
-          window.location.reload();
-        }, 500);
+          queryClient.setQueryData(['/api/admin/status'], { authenticated: true });
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/status'] });
+          // Use location.href instead of reload to avoid React state issues
+          window.location.href = '/admin';
+        }, 300);
       },
       onError: () => {
         toast({
