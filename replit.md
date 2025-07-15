@@ -175,7 +175,9 @@ Preferred communication style: Simple, everyday language.
 - **Side-by-side Hero**: Large text on left, video on right matching reference site layout
 - **Form Issue Resolution**: Fixed waitlist form submission that stopped working after design changes
 - **Stability Fix**: Implemented robust form submission to prevent HMR-related failures during development
-- **Current Status**: New dark theme active with stable form submission resistant to hot reloading issues
+- **API Deployment Fix**: Resolved critical Netlify serverless function issue preventing form submissions
+- **Backend Build**: Fixed missing dist/index.js causing 404 errors on production API endpoints
+- **Current Status**: New dark theme active with working form submission and functional API endpoints
 
 ### Analytics Dashboard Enhancements (Previous)
 - Resolved critical deployment/caching issues that were preventing dashboard updates from showing
