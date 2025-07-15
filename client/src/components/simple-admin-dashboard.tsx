@@ -66,7 +66,12 @@ export function SimpleAdminDashboard() {
         }),
         fetch('/api/waitlist/responses', {
           credentials: 'include', 
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         })
       ]);
 
@@ -85,6 +90,14 @@ export function SimpleAdminDashboard() {
           responsesIsArray: Array.isArray(responsesData),
           responsesLength: responsesData?.length,
           firstResponse: responsesData?.[0]
+        });
+        
+        // Debug: Log the exact API response size
+        console.log('🔍 EXACT API RESPONSE DEBUG:', {
+          responseHeaders: responsesRes.headers.get('content-length'),
+          responseContentType: responsesRes.headers.get('content-type'),
+          responseCache: responsesRes.headers.get('cache-control'),
+          fullResponseData: responsesData
         });
         
         setAnalytics(analyticsData);
@@ -175,11 +188,11 @@ export function SimpleAdminDashboard() {
           console.log('🔄 Loading dashboard data after login...');
           loadDashboardData();
           
-          // Force page refresh to clear any caching issues
+          // Manual data reload after successful login
           setTimeout(() => {
-            console.log('🔄 Refreshing page to clear cache...');
-            window.location.reload();
-          }, 500);
+            console.log('🔄 Manual reload after login success...');
+            loadDashboardData();
+          }, 100);
         }, 200);
       } else {
         toast({

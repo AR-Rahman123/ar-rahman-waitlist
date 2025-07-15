@@ -114,6 +114,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/waitlist/responses", requireAdminAuth, async (req, res) => {
     try {
       const responses = await storage.getWaitlistResponses();
+      console.log(`🔍 Admin requesting responses: Found ${responses.length} total responses`);
+      console.log(`🔍 Session check: ${req.session ? 'Session exists' : 'No session'}, Auth: ${req.session?.isAdminAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
+      
+      // Add no-cache headers to prevent browser caching issues
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
       res.json(responses);
     } catch (error) {
       console.error("Error fetching waitlist responses:", error);
