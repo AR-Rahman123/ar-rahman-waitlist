@@ -1,4 +1,4 @@
-const serverless = require('serverless-http');
+import serverless from 'serverless-http';
 
 // Import the Express app from the built server
 const handler = async (event, context) => {
@@ -21,4 +21,4 @@ const handler = async (event, context) => {
   }
 };
 
-module.exports = { handler };
+export { handler };
