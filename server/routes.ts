@@ -196,14 +196,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/backup/export-csv", requireAdminAuth, async (req, res) => {
+  app.get("/api/backup/export-csv", requireAdminAuth, async (req, res) => {
     try {
-      const csvPath = await exportWaitlistDataToCSV();
-      res.json({ 
-        success: true, 
-        message: "CSV export created successfully", 
-        csvPath: csvPath.split('/').pop() // Return just filename for security
-      });
+      const responses = await storage.getWaitlistResponses();
+      
+      // Generate CSV content
+      const headers = [
+        'ID', 'Full Name', 'Email', 'Role', 'Age', 'Prayer Frequency', 
+        'Arabic Understanding', 'Understanding Difficulty', 'Importance',
+        'Learning Struggle', 'Current Approach', 'AR Experience', 'AR Interest',
+        'Features', 'Likelihood', 'Additional Feedback', 'Interview Willingness',
+        'Investor Presentation', 'Additional Comments', 'Created At'
+      ];
+      
+      const csvContent = [
+        headers.join(','),
+        ...responses.map(r => [
+          r.id,
+          `"${r.full_name || r.fullName || ''}"`,
+          `"${r.email || ''}"`,
+          `"${r.role || ''}"`,
+          `"${r.age || ''}"`,
+          `"${r.prayer_frequency || r.prayerFrequency || ''}"`,
+          `"${r.arabic_understanding || r.arabicUnderstanding || ''}"`,
+          `"${r.understanding_difficulty || r.understandingDifficulty || ''}"`,
+          `"${r.importance || ''}"`,
+          `"${r.learning_struggle || r.learningStruggle || ''}"`,
+          `"${r.current_approach || r.currentApproach || ''}"`,
+          `"${r.ar_experience || r.arExperience || ''}"`,
+          `"${r.ar_interest || r.arInterest || ''}"`,
+          `"${Array.isArray(r.features) ? r.features.join('; ') : r.features || ''}"`,
+          `"${r.likelihood || ''}"`,
+          `"${r.additional_feedback || r.additionalFeedback || ''}"`,
+          `"${r.interview_willingness || r.interviewWillingness || ''}"`,
+          `"${r.investor_presentation || r.investorPresentation || ''}"`,
+          `"${r.additional_comments || r.additionalComments || ''}"`,
+          `"${r.created_at || r.createdAt || ''}"`
+        ].join(','))
+      ].join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=waitlist-responses.csv');
+      res.send(csvContent);
     } catch (error: any) {
       console.error("Error exporting CSV:", error);
       res.status(500).json({ success: false, message: "Failed to export CSV" });

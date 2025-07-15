@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, ArrowLeft, Users, TrendingUp, Target, Heart, Download, Trash2, Database, CheckSquare, Square } from "lucide-react";
+import { Shield, ArrowLeft, Users, TrendingUp, Target, Heart, Download, Trash2, Database, CheckSquare, Square, FileSpreadsheet } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
@@ -70,7 +70,9 @@ export function SimpleAdminDashboard() {
 
       console.log('API Response Status:', { 
         analytics: analyticsRes.status, 
-        responses: responsesRes.status 
+        responses: responsesRes.status,
+        analyticsOk: analyticsRes.ok,
+        responsesOk: responsesRes.ok
       });
 
       if (analyticsRes.ok && responsesRes.ok) {
@@ -84,7 +86,11 @@ export function SimpleAdminDashboard() {
           analytics: analyticsData, 
           responsesCount: responsesData.length,
           totalFromAnalytics: analyticsData.totalResponses,
-          sampleResponses: responsesData.slice(0, 3).map(r => ({ id: r.id, name: r.full_name || r.fullName }))
+          allResponses: responsesData.map(r => ({ 
+            id: r.id, 
+            name: r.full_name || r.fullName,
+            email: r.email 
+          }))
         });
       } else {
         console.error('API Response Errors:', { 
@@ -222,6 +228,56 @@ export function SimpleAdminDashboard() {
 
   const handleExportCSV = () => {
     window.open('/api/backup/export-csv', '_blank');
+  };
+
+  const handleExportExcel = () => {
+    // Convert responses to Excel-friendly format and download
+    const excelData = responses.map(r => ({
+      'ID': r.id,
+      'Full Name': r.full_name || r.fullName,
+      'Email': r.email,
+      'Role': r.role,
+      'Age': r.age,
+      'Prayer Frequency': r.prayer_frequency || r.prayerFrequency,
+      'Arabic Understanding': r.arabic_understanding || r.arabicUnderstanding,
+      'Understanding Difficulty': r.understanding_difficulty || r.understandingDifficulty,
+      'Importance': r.importance,
+      'Learning Struggle': r.learning_struggle || r.learningStruggle,
+      'Current Approach': r.current_approach || r.currentApproach,
+      'AR Experience': r.ar_experience || r.arExperience,
+      'AR Interest': r.ar_interest || r.arInterest,
+      'Features': Array.isArray(r.features) ? r.features.join('; ') : r.features,
+      'Likelihood': r.likelihood,
+      'Additional Feedback': r.additional_feedback || r.additionalFeedback,
+      'Interview Willingness': r.interview_willingness || r.interviewWillingness,
+      'Investor Presentation': r.investor_presentation || r.investorPresentation,
+      'Additional Comments': r.additional_comments || r.additionalComments,
+      'Created At': new Date(r.created_at || r.createdAt).toLocaleDateString()
+    }));
+
+    // Create CSV content for Excel
+    const headers = Object.keys(excelData[0] || {});
+    const csvContent = [
+      headers.join(','),
+      ...excelData.map(row => 
+        headers.map(header => `"${(row[header] || '').toString().replace(/"/g, '""')}"`).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'waitlist-responses.csv';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+
+    toast({
+      title: "Success",
+      description: "Excel file downloaded successfully",
+    });
   };
 
   const handleBackup = async () => {
@@ -498,6 +554,15 @@ export function SimpleAdminDashboard() {
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
+                </Button>
+                <Button 
+                  onClick={handleExportExcel}
+                  variant="outline" 
+                  size="sm"
+                  className="border-green-500/30 text-green-200 hover:bg-green-500/20"
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Export Excel
                 </Button>
                 <Button 
                   onClick={handleBackup}
