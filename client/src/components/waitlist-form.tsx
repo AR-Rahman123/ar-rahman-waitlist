@@ -89,6 +89,7 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
       });
     },
     onError: (error) => {
+      console.error("Submission error:", error);
       toast({
         title: "Error",
         description: "Failed to join waitlist. Please try again.",
@@ -130,6 +131,8 @@ export function WaitlistForm({ onClose }: WaitlistFormProps) {
 
   const onSubmit = (data: WaitlistFormData) => {
     console.log("Form submit triggered with data:", data);
+    console.log("Form validation errors:", form.formState.errors);
+    console.log("Form is valid:", form.formState.isValid);
     submitMutation.mutate(data);
   };
 

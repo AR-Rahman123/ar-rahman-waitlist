@@ -57,6 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Submit waitlist response
   app.post("/api/waitlist", async (req, res) => {
     try {
+      console.log("Received waitlist data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertWaitlistResponseSchema.parse(req.body);
       
       const response = await storage.createWaitlistResponse(validatedData);
@@ -99,6 +100,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Successfully joined waitlist! Check your email for confirmation." });
     } catch (error) {
       console.error("Error creating waitlist response:", error);
+      if (error.name === 'ZodError') {
+        console.error("Validation errors:", error.errors);
+      }
       res.status(400).json({ 
         success: false, 
         message: "Failed to join waitlist. Please try again." 
