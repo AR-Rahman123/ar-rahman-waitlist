@@ -1,4 +1,4 @@
-# Deploy AR Rahman with Rich Analytics
+# Deploy AR Rahman with Rich Analytics + Dynamic Count Fix
 
 ## Git Commands to Push Updates
 
@@ -7,7 +7,7 @@
 git add .
 
 # Commit with descriptive message
-git commit -m "RICH ANALYTICS RESTORED: Complete dashboard with dynamic charts and real-time tracking"
+git commit -m "FIXED: Dynamic response counting + Rich analytics dashboard complete"
 
 # Push to main branch (triggers Netlify auto-deployment)
 git push origin main

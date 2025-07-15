@@ -82,14 +82,30 @@ function requireAdminAuth(req, res, next) {
   next();
 }
 
-// Test endpoint - increment count for new submissions
-let currentCount = 12;
+// Initialize global storage if not exists
+if (!global.additionalResponses) {
+  global.additionalResponses = [];
+}
+
+// Dynamic count calculation - will be recalculated on each request
+let currentCount = 0;
 
 app.post('/api/waitlist', async (req, res) => {
   console.log('Waitlist submission received:', req.body);
   
-  // Increment count for new submissions (simulating database storage)
-  currentCount++;
+  // Ensure global storage exists
+  if (!global.additionalResponses) {
+    global.additionalResponses = [];
+  }
+  
+  // Calculate current count from existing data
+  const allResponses = [
+    ...(global.additionalResponses || []),
+    ...baseResponses
+  ];
+  currentCount = allResponses.length + 1; // Next ID
+  
+  console.log(`New submission ID will be: ${currentCount} (${global.additionalResponses.length} existing new + ${baseResponses.length} base + 1)`);
   
   // Store the new submission in a simple array (in production, this would go to database)
   const newSubmission = {
@@ -127,7 +143,24 @@ app.post('/api/waitlist', async (req, res) => {
 });
 
 app.get('/api/waitlist/count', async (req, res) => {
-  res.json({ count: currentCount }); // Dynamic count
+  // Ensure global storage exists
+  if (!global.additionalResponses) {
+    global.additionalResponses = [];
+  }
+  
+  // Calculate actual count from all responses
+  const allResponses = [
+    ...(global.additionalResponses || []),
+    ...baseResponses
+  ];
+  const actualCount = allResponses.length;
+  
+  console.log(`Count calculation: ${global.additionalResponses.length} new + ${baseResponses.length} base = ${actualCount} total`);
+  
+  // Update currentCount to reflect reality
+  currentCount = actualCount;
+  
+  res.json({ count: actualCount });
 });
 
 // Define base responses at the top level for reuse
