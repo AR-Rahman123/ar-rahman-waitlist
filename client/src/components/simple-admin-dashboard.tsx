@@ -82,23 +82,31 @@ export function SimpleAdminDashboard() {
         setAnalytics(analyticsData);
         setResponses(responsesData);
         
-        console.log('Dashboard loaded successfully:', { 
-          analytics: analyticsData, 
-          responsesCount: responsesData.length,
-          totalFromAnalytics: analyticsData.totalResponses,
-          allResponses: responsesData.map(r => ({ 
-            id: r.id, 
-            name: r.full_name || r.fullName,
-            email: r.email 
-          }))
+        console.log('🔍 Dashboard Data Loaded:', { 
+          analyticsTotal: analyticsData.totalResponses,
+          responsesReceived: responsesData.length,
+          responseIds: responsesData.map(r => r.id),
+          firstThreeNames: responsesData.slice(0, 3).map(r => r.full_name || r.fullName),
+          lastThreeNames: responsesData.slice(-3).map(r => r.full_name || r.fullName)
         });
+
+        // Force console log of all response data for debugging
+        console.table(responsesData.map(r => ({
+          id: r.id,
+          name: r.full_name || r.fullName,
+          email: r.email,
+          created: r.created_at || r.createdAt
+        })));
       } else {
-        console.error('API Response Errors:', { 
+        console.error('❌ API Response Failed:', { 
           analyticsStatus: analyticsRes.status, 
-          responsesStatus: responsesRes.status 
+          responsesStatus: responsesRes.status,
+          analyticsText: await analyticsRes.text(),
+          responsesText: await responsesRes.text()
         });
         
         if (analyticsRes.status === 401 || responsesRes.status === 401) {
+          console.error('🔐 Authentication failed - redirecting to login');
           toast({
             title: "Session Expired",
             description: "Please login again",
@@ -150,13 +158,17 @@ export function SimpleAdminDashboard() {
       const data = await response.json();
       
       if (data.success) {
+        console.log('✅ Admin login successful, loading data...');
         setIsAuthenticated(true);
         toast({
           title: "Success",
           description: "Admin authentication successful",
         });
-        // Force immediate data load after successful login
-        loadDashboardData();
+        // Wait a moment for session to persist then load data
+        setTimeout(() => {
+          console.log('🔄 Loading dashboard data after login...');
+          loadDashboardData();
+        }, 200);
       } else {
         toast({
           title: "Access Denied",
@@ -226,8 +238,45 @@ export function SimpleAdminDashboard() {
     }
   };
 
-  const handleExportCSV = () => {
-    window.open('/api/backup/export-csv', '_blank');
+  const handleExportCSV = async () => {
+    try {
+      const response = await fetch('/api/backup/export-csv', {
+        credentials: 'include',
+        headers: { 'Accept': 'text/csv' }
+      });
+
+      if (response.ok) {
+        const csvContent = await response.text();
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'waitlist-responses-server.csv';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        toast({
+          title: "Success",
+          description: "Server CSV export downloaded successfully",
+        });
+      } else {
+        console.error('CSV Export failed:', response.status, await response.text());
+        toast({
+          title: "Export Error",
+          description: `CSV export failed: ${response.status}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('CSV Export error:', error);
+      toast({
+        title: "Export Error",
+        description: "Failed to download CSV file",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportExcel = () => {
