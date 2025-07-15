@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, ArrowLeft, Users, TrendingUp, Target, Heart, Download, Trash2, Database, CheckSquare, Square, FileSpreadsheet } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from "recharts";
 
 export function SimpleAdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -525,6 +525,10 @@ export function SimpleAdminDashboard() {
     // Prepare chart data
     const ageData = analytics?.ageDistribution ? Object.entries(analytics.ageDistribution).map(([name, value]) => ({ name, value })) : [];
     const prayerData = analytics?.prayerFrequencyDistribution ? Object.entries(analytics.prayerFrequencyDistribution).map(([name, value]) => ({ name, value })) : [];
+    const arabicData = analytics?.arabicUnderstandingDistribution ? Object.entries(analytics.arabicUnderstandingDistribution).map(([name, value]) => ({ name, value })) : [];
+    const arInterestData = analytics?.arInterestDistribution ? Object.entries(analytics.arInterestDistribution).map(([name, value]) => ({ name, value })) : [];
+    const featuresData = analytics?.featuresDistribution ? Object.entries(analytics.featuresDistribution).map(([name, value]) => ({ name, value })) : [];
+    const dailyData = analytics?.dailySubmissions || [];
 
     return (
       <div className="space-y-6">
@@ -627,6 +631,99 @@ export function SimpleAdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Additional Analytics Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Arabic Understanding */}
+          <Card className="bg-black/20 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">Arabic Understanding</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={arabicData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={60}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {arabicData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* AR Interest */}
+          <Card className="bg-black/20 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">AR Interest Level</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={arInterestData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="name" stroke="#9ca3af" />
+                  <YAxis stroke="#9ca3af" />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#06b6d4" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Features Interest */}
+          <Card className="bg-black/20 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">Desired Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={featuresData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="name" stroke="#9ca3af" />
+                  <YAxis stroke="#9ca3af" />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Daily Submissions Chart */}
+        <Card className="bg-black/20 backdrop-blur-lg border-purple-500/20">
+          <CardHeader>
+            <CardTitle className="text-white">Daily Submissions Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="date" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="submissions" 
+                  stroke="#8b5cf6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Responses Table */}
         <Card className="bg-black/20 backdrop-blur-lg border-purple-500/20">

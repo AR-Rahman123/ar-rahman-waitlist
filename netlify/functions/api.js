@@ -130,10 +130,8 @@ app.get('/api/waitlist/count', async (req, res) => {
   res.json({ count: currentCount }); // Dynamic count
 });
 
-// Admin data endpoints (using real data from database)
-app.get('/api/waitlist/responses', (req, res) => {
-  // Base responses from database
-  const baseResponses = [
+// Define base responses at the top level for reuse
+const baseResponses = [
     {
       id: 12,
       full_name: "Test User",
@@ -398,8 +396,10 @@ app.get('/api/waitlist/responses', (req, res) => {
       additional_comments: null,
       created_at: "2025-07-13T16:18:36.303Z"
     }
-  ];
-  
+];
+
+// Admin data endpoints (using real data from database)
+app.get('/api/waitlist/responses', (req, res) => {
   // Combine base responses with new submissions
   const allResponses = [
     ...(global.additionalResponses || []),
@@ -410,40 +410,133 @@ app.get('/api/waitlist/responses', (req, res) => {
 });
 
 app.get('/api/waitlist/analytics', (req, res) => {
-  // Calculate dynamic analytics including new submissions
-  const totalResponses = currentCount;
+  // Get all responses including new submissions
+  const allResponses = [
+    ...(global.additionalResponses || []),
+    ...baseResponses
+  ];
   
-  res.json({
-    totalResponses: totalResponses,
-    ageDistribution: { 
-      "46-55": 2, 
-      "25-34": 2, 
-      "36-45": 4, 
-      "25-35": 1, 
-      "26-35": 3 
-    },
-    prayerFrequencyDistribution: { 
-      "5_times_daily": 5, 
-      "3_4_times_daily": 3, 
-      "1_2_times_daily": 2, 
-      "5-times": 1,
-      "occasionally": 1 
-    },
-    arabicUnderstandingDistribution: { 
-      "good": 6, 
-      "basic": 4, 
-      "none": 2 
-    },
-    arInterestDistribution: { 
-      "very-interested": 10, 
-      "interested": 2 
-    },
-    featuresDistribution: { 
-      "translation": 8, 
-      "guidance": 6, 
-      "pronunciation": 4,
-      "community": 3
+  const totalResponses = allResponses.length;
+  
+  // Calculate age distribution
+  const ageDistribution = {};
+  allResponses.forEach(r => {
+    const age = r.age;
+    ageDistribution[age] = (ageDistribution[age] || 0) + 1;
+  });
+
+  // Calculate prayer frequency distribution
+  const prayerFrequencyDistribution = {};
+  allResponses.forEach(r => {
+    const freq = r.prayer_frequency;
+    prayerFrequencyDistribution[freq] = (prayerFrequencyDistribution[freq] || 0) + 1;
+  });
+
+  // Calculate Arabic understanding distribution
+  const arabicUnderstandingDistribution = {};
+  allResponses.forEach(r => {
+    const understanding = r.arabic_understanding;
+    arabicUnderstandingDistribution[understanding] = (arabicUnderstandingDistribution[understanding] || 0) + 1;
+  });
+
+  // Calculate AR interest distribution
+  const arInterestDistribution = {};
+  allResponses.forEach(r => {
+    const interest = r.ar_interest;
+    arInterestDistribution[interest] = (arInterestDistribution[interest] || 0) + 1;
+  });
+
+  // Calculate features distribution
+  const featuresDistribution = {};
+  allResponses.forEach(r => {
+    if (Array.isArray(r.features)) {
+      r.features.forEach(feature => {
+        featuresDistribution[feature] = (featuresDistribution[feature] || 0) + 1;
+      });
     }
+  });
+
+  // Calculate understanding difficulty distribution
+  const understandingDifficultyDistribution = {};
+  allResponses.forEach(r => {
+    const difficulty = r.understanding_difficulty;
+    understandingDifficultyDistribution[difficulty] = (understandingDifficultyDistribution[difficulty] || 0) + 1;
+  });
+
+  // Calculate importance distribution
+  const importanceDistribution = {};
+  allResponses.forEach(r => {
+    const importance = r.importance;
+    importanceDistribution[importance] = (importanceDistribution[importance] || 0) + 1;
+  });
+
+  // Calculate learning struggle distribution
+  const learningStruggleDistribution = {};
+  allResponses.forEach(r => {
+    const struggle = r.learning_struggle;
+    learningStruggleDistribution[struggle] = (learningStruggleDistribution[struggle] || 0) + 1;
+  });
+
+  // Calculate current approach distribution
+  const currentApproachDistribution = {};
+  allResponses.forEach(r => {
+    const approach = r.current_approach;
+    currentApproachDistribution[approach] = (currentApproachDistribution[approach] || 0) + 1;
+  });
+
+  // Calculate AR experience distribution
+  const arExperienceDistribution = {};
+  allResponses.forEach(r => {
+    const experience = r.ar_experience;
+    arExperienceDistribution[experience] = (arExperienceDistribution[experience] || 0) + 1;
+  });
+
+  // Calculate likelihood distribution
+  const likelihoodDistribution = {};
+  allResponses.forEach(r => {
+    const likelihood = r.likelihood;
+    if (likelihood) {
+      likelihoodDistribution[likelihood] = (likelihoodDistribution[likelihood] || 0) + 1;
+    }
+  });
+
+  // Calculate interview willingness distribution
+  const interviewWillingnessDistribution = {};
+  allResponses.forEach(r => {
+    const willingness = r.interview_willingness;
+    interviewWillingnessDistribution[willingness] = (interviewWillingnessDistribution[willingness] || 0) + 1;
+  });
+
+  // Calculate daily submissions for line chart
+  const dailySubmissions = {};
+  allResponses.forEach(r => {
+    const date = new Date(r.created_at).toDateString();
+    dailySubmissions[date] = (dailySubmissions[date] || 0) + 1;
+  });
+
+  // Convert to chart format
+  const dailyData = Object.entries(dailySubmissions)
+    .map(([date, count]) => ({
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      submissions: count
+    }))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  res.json({
+    totalResponses,
+    ageDistribution,
+    prayerFrequencyDistribution,
+    arabicUnderstandingDistribution,
+    arInterestDistribution,
+    featuresDistribution,
+    understandingDifficultyDistribution,
+    importanceDistribution,
+    learningStruggleDistribution,
+    currentApproachDistribution,
+    arExperienceDistribution,
+    likelihoodDistribution,
+    interviewWillingnessDistribution,
+    dailySubmissions: dailyData
   });
 });
 
