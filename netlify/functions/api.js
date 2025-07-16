@@ -2,6 +2,16 @@ const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 
+// Configure WebSocket for Neon serverless - CRITICAL for production
+if (typeof globalThis.WebSocket === 'undefined') {
+  try {
+    const ws = require('ws');
+    globalThis.WebSocket = ws;
+  } catch (error) {
+    console.warn('WebSocket not available, database connections may fail');
+  }
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -136,8 +146,8 @@ app.post('/api/waitlist', async (req, res) => {
     if (process.env.DATABASE_URL) {
       console.log('💾 Connecting to production database...');
       const { Pool } = require('@neondatabase/serverless');
-      const ws = require('ws');
       
+      // Critical: Configure WebSocket for serverless environment
       const pool = new Pool({ 
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
