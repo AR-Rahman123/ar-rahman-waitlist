@@ -128,6 +128,11 @@ app.post('/api/waitlist', async (req, res) => {
   
   try {
     // PRIORITY: Store in database first - this is critical for production
+    console.log('🔍 Environment check:', {
+      hasDatabase: !!process.env.DATABASE_URL,
+      databaseUrlLength: process.env.DATABASE_URL?.length || 0
+    });
+    
     if (process.env.DATABASE_URL) {
       console.log('💾 Connecting to production database...');
       const { Pool } = require('@neondatabase/serverless');
@@ -199,6 +204,17 @@ app.post('/api/waitlist', async (req, res) => {
       message: "Failed to save submission. Please try again." 
     });
   }
+});
+
+// Diagnostic endpoint to check production environment
+app.get('/api/debug/env', async (req, res) => {
+  res.json({
+    hasDatabase: !!process.env.DATABASE_URL,
+    hasSendGrid: !!process.env.SENDGRID_API_KEY,
+    hasFromEmail: !!process.env.FROM_EMAIL,
+    nodeEnv: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.get('/api/waitlist/count', async (req, res) => {
