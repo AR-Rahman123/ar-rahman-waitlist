@@ -186,14 +186,29 @@ app.post('/api/waitlist', async (req, res) => {
           const welcomeMsg = {
             to: req.body.email,
             from: process.env.FROM_EMAIL,
-            subject: 'Welcome to AR Rahman - Your Journey Begins! 🌟',
+            subject: 'Welcome to AR Rahman - Your Spiritual Journey Awaits! 🕌',
             html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #7c3aed;">As-salāmu ʿalaykum ${req.body.fullName}!</h2>
-                <p>Thank you for joining the AR Rahman waitlist! We're thrilled to have you on this spiritual journey.</p>
-                <p>You're now part of an exclusive community that will experience the future of Quranic prayer through augmented reality.</p>
-                <p>We'll keep you updated on our progress and notify you when AR Rahman is ready for early access.</p>
-                <p>Barakallahu feeki,<br>The AR Rahman Team</p>
+              <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1e293b 0%, #4c1d95 100%); color: white; border-radius: 10px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <h1 style="color: #06b6d4; font-size: 28px; margin: 0;">AR Rahman</h1>
+                  <p style="color: #94a3b8; font-style: italic;">Experience the Quran through Augmented Reality</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h2 style="color: #06b6d4; margin-top: 0;">As-salāmu ʿalaykum ${req.body.fullName}!</h2>
+                  <p style="line-height: 1.6;">Thank you for joining the AR Rahman waitlist! We're honored to have you on this transformative spiritual journey.</p>
+                  <p style="line-height: 1.6;">You're now part of an exclusive community of believers who will be among the first to experience the future of Quranic prayer through cutting-edge augmented reality technology.</p>
+                  <p style="line-height: 1.6;">We'll keep you updated on our progress and notify you when AR Rahman is ready for early access testing.</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                  <p style="color: #06b6d4; font-weight: bold;">Barakallahu feeki,</p>
+                  <p style="color: #94a3b8;">The AR Rahman Team</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #64748b;">
+                  <p>Stay connected: <a href="https://ar-rahman.ai" style="color: #06b6d4;">ar-rahman.ai</a></p>
+                </div>
               </div>
             `
           };
