@@ -267,10 +267,19 @@ export function SimpleAdminDashboard() {
           title: "Success",
           description: "Response deleted successfully",
         });
+      } else if (response.status === 401) {
+        // Session expired, redirect to login
+        setIsAuthenticated(false);
+        toast({
+          title: "Session Expired",
+          description: "Please log in again to delete responses",
+          variant: "destructive",
+        });
       } else {
+        const errorData = await response.json().catch(() => ({ message: "Failed to delete response" }));
         toast({
           title: "Error",
-          description: "Failed to delete response",
+          description: errorData.message || "Failed to delete response",
           variant: "destructive",
         });
       }
