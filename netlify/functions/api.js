@@ -124,17 +124,15 @@ if (!global.additionalResponses) {
 let currentCount = 0;
 
 app.post('/api/waitlist', async (req, res) => {
-  console.log('Waitlist submission received:', req.body);
+  console.log('🚀 Production submission received:', req.body.fullName, req.body.email);
   
   try {
-    // CRITICAL: Store in database first (where Michael's submission went)
+    // PRIORITY: Store in database first - this is critical for production
     if (process.env.DATABASE_URL) {
-      console.log('Storing submission in production database...');
+      console.log('💾 Connecting to production database...');
       const { Pool } = require('@neondatabase/serverless');
       const ws = require('ws');
       
-      // Configure Neon for serverless
-      const neonConfig = { webSocketConstructor: ws };
       const pool = new Pool({ 
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
@@ -159,36 +157,48 @@ app.post('/api/waitlist', async (req, res) => {
         req.body.investorPresentation, req.body.additionalComments
       ]);
       
-      console.log(`New submission saved to database with ID: ${result.rows[0].id}`);
+      console.log(`✅ PRODUCTION SUCCESS: ${req.body.fullName} saved with ID ${result.rows[0].id}`);
       await pool.end();
       
-      return res.json({ success: true, message: "Successfully joined waitlist!" });
+      // Send confirmation email
+      try {
+        if (process.env.SENDGRID_API_KEY) {
+          const sgMail = require('@sendgrid/mail');
+          sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+          
+          const msg = {
+            to: req.body.email,
+            from: process.env.FROM_EMAIL || 'noreply@ar-rahman.ai',
+            subject: 'Welcome to AR Rahman Waitlist!',
+            text: `Dear ${req.body.fullName}, thank you for joining our waitlist!`,
+            html: `<p>Dear ${req.body.fullName},</p><p>Thank you for joining the AR Rahman waitlist!</p>`
+          };
+          
+          await sgMail.send(msg);
+          console.log(`✅ Email sent to ${req.body.email}`);
+        }
+      } catch (emailError) {
+        console.error('❌ Email failed:', emailError);
+      }
+      
+      return res.json({ 
+        success: true, 
+        message: "Successfully joined waitlist! Check your email for confirmation." 
+      });
+    } else {
+      console.error('❌ DATABASE_URL not found in production environment');
+      return res.status(500).json({ 
+        success: false, 
+        message: "Database connection not available" 
+      });
     }
   } catch (dbError) {
-    console.error('Database insert failed, using fallback:', dbError);
+    console.error('❌ CRITICAL DATABASE ERROR:', dbError);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to save submission. Please try again." 
+    });
   }
-  
-  // Fallback to global array only if database fails
-  if (!global.additionalResponses) {
-    global.additionalResponses = [];
-  }
-  
-  const allResponses = [
-    ...(global.additionalResponses || []),
-    ...baseResponses
-  ];
-  currentCount = allResponses.length + 1;
-  
-  const newSubmission = {
-    id: currentCount,
-    full_name: req.body.fullName || 'New User',
-    email: req.body.email || 'user@example.com',
-    // ... other fields
-    created_at: new Date().toISOString()
-  };
-  
-  global.additionalResponses.unshift(newSubmission);
-  res.json({ success: true, message: "Successfully joined waitlist!" });
 });
 
 app.get('/api/waitlist/count', async (req, res) => {
