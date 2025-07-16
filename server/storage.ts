@@ -49,33 +49,14 @@ export class DatabaseStorage implements IStorage {
 
   async getWaitlistResponses(): Promise<WaitlistResponse[]> {
     try {
-      console.log("🔍 Executing getWaitlistResponses query...");
-      
-      // Use Drizzle ORM properly with explicit ordering
-      const responses = await db
-        .select()
-        .from(waitlistResponses)
-        .orderBy(waitlistResponses.createdAt);
-      
-      console.log(`🔍 Database returned ${responses.length} responses`);
-      console.log(`🔍 First few IDs: ${responses.slice(0, 5).map(r => r.id).join(', ')}`);
-      console.log(`🔍 Last few IDs: ${responses.slice(-5).map(r => r.id).join(', ')}`);
-      
-      return responses;
+      console.log("🔍 Using direct SQL query to bypass schema issues...");
+      const pool = (await import("./db")).pool;
+      const result = await pool.query("SELECT * FROM waitlist_responses ORDER BY id DESC");
+      console.log(`🔍 Raw query returned ${result.rows.length} rows`);
+      return result.rows as WaitlistResponse[];
     } catch (error) {
       console.error("Database query error:", error);
-      
-      // Fallback to raw query if Drizzle fails
-      try {
-        console.log("🔄 Falling back to raw SQL query...");
-        const pool = (await import("./db")).pool;
-        const result = await pool.query("SELECT * FROM waitlist_responses ORDER BY created_at DESC");
-        console.log(`🔍 Raw query returned ${result.rows.length} rows`);
-        return result.rows as WaitlistResponse[];
-      } catch (rawError) {
-        console.error("Raw query also failed:", rawError);
-        throw error;
-      }
+      throw error;
     }
   }
 
