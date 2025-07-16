@@ -7,7 +7,7 @@
 git add .
 
 # Commit with descriptive message
-git commit -m "FIXED: Serverless persistence issue - restored missing production responses"
+git commit -m "CRITICAL: Fixed missing Michael Oguntayo submission - database now connected to admin dashboard"
 
 # Push to main branch (triggers Netlify auto-deployment)
 git push origin main

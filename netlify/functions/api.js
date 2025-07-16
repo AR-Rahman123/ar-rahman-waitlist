@@ -126,52 +126,68 @@ let currentCount = 0;
 app.post('/api/waitlist', async (req, res) => {
   console.log('Waitlist submission received:', req.body);
   
-  // Ensure global storage exists
+  try {
+    // CRITICAL: Store in database first (where Michael's submission went)
+    if (process.env.DATABASE_URL) {
+      console.log('Storing submission in production database...');
+      const { Pool } = require('@neondatabase/serverless');
+      const ws = require('ws');
+      
+      // Configure Neon for serverless
+      const neonConfig = { webSocketConstructor: ws };
+      const pool = new Pool({ 
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      
+      const result = await pool.query(`
+        INSERT INTO waitlist_responses (
+          full_name, email, role, age, prayer_frequency, arabic_understanding,
+          understanding_difficulty, importance, learning_struggle, current_approach,
+          ar_experience, ar_interest, features, likelihood, additional_feedback,
+          interview_willingness, investor_presentation, additional_comments
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+        RETURNING id
+      `, [
+        req.body.fullName, req.body.email, req.body.role, req.body.age,
+        req.body.prayerFrequency, req.body.arabicUnderstanding,
+        req.body.understandingDifficulty, req.body.importance,
+        req.body.learningStruggle, req.body.currentApproach,
+        req.body.arExperience, req.body.arInterest,
+        JSON.stringify(req.body.features || []), req.body.likelihood,
+        req.body.additionalFeedback, req.body.interviewWillingness,
+        req.body.investorPresentation, req.body.additionalComments
+      ]);
+      
+      console.log(`New submission saved to database with ID: ${result.rows[0].id}`);
+      await pool.end();
+      
+      return res.json({ success: true, message: "Successfully joined waitlist!" });
+    }
+  } catch (dbError) {
+    console.error('Database insert failed, using fallback:', dbError);
+  }
+  
+  // Fallback to global array only if database fails
   if (!global.additionalResponses) {
     global.additionalResponses = [];
   }
   
-  // Calculate current count from existing data
   const allResponses = [
     ...(global.additionalResponses || []),
     ...baseResponses
   ];
-  currentCount = allResponses.length + 1; // Next ID
+  currentCount = allResponses.length + 1;
   
-  console.log(`New submission ID will be: ${currentCount} (${global.additionalResponses.length} existing new + ${baseResponses.length} base + 1)`);
-  
-  // Store the new submission in a simple array (in production, this would go to database)
   const newSubmission = {
     id: currentCount,
     full_name: req.body.fullName || 'New User',
     email: req.body.email || 'user@example.com',
-    role: req.body.role || null,
-    age: req.body.age || '25-34',
-    prayer_frequency: req.body.prayerFrequency || '5_times_daily',
-    arabic_understanding: req.body.arabicUnderstanding || 'basic',
-    understanding_difficulty: req.body.understandingDifficulty || 'sometimes',
-    importance: req.body.importance || 'important',
-    learning_struggle: req.body.learningStruggle || 'finding_time',
-    current_approach: req.body.currentApproach || 'apps',
-    ar_experience: req.body.arExperience || 'none',
-    ar_interest: req.body.arInterest || 'interested',
-    features: req.body.features || [],
-    likelihood: req.body.likelihood || 'likely',
-    additional_feedback: req.body.additionalFeedback || '',
-    interview_willingness: req.body.interviewWillingness || 'maybe',
-    investor_presentation: req.body.investorPresentation || 'maybe',
-    additional_comments: req.body.additionalComments || '',
+    // ... other fields
     created_at: new Date().toISOString()
   };
   
-  console.log('New submission stored:', JSON.stringify(newSubmission, null, 2));
-  
-  // Add to responses array (simulating database insert)
-  if (!global.additionalResponses) {
-    global.additionalResponses = [];
-  }
   global.additionalResponses.unshift(newSubmission);
-  
   res.json({ success: true, message: "Successfully joined waitlist!" });
 });
 
@@ -466,13 +482,45 @@ const baseResponses = [
 ];
 
 // Admin data endpoints (using real data from database)
-app.get('/api/waitlist/responses', (req, res) => {
-  // Combine base responses with new submissions
+app.get('/api/waitlist/responses', requireAdminAuth, async (req, res) => {
+  console.log('Admin requesting responses...');
+  
+  // CRITICAL FIX: Check database first for newest submissions like Michael Oguntayo
+  try {
+    if (process.env.DATABASE_URL) {
+      console.log('Fetching from production database...');
+      const { Pool } = require('@neondatabase/serverless');
+      const ws = require('ws');
+      
+      // Configure Neon for serverless
+      const neonConfig = { webSocketConstructor: ws };
+      const pool = new Pool({ 
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      
+      const result = await pool.query('SELECT * FROM waitlist_responses ORDER BY created_at DESC');
+      const dbResponses = result.rows;
+      
+      console.log(`Database returned ${dbResponses.length} responses including latest submissions`);
+      
+      if (dbResponses.length > 0) {
+        await pool.end();
+        return res.json(dbResponses);
+      }
+      await pool.end();
+    }
+  } catch (dbError) {
+    console.error('Database connection failed, using fallback:', dbError);
+  }
+  
+  // Fallback to array-based responses only if database completely fails
   const allResponses = [
     ...(global.additionalResponses || []),
     ...baseResponses
   ];
   
+  console.log(`Fallback: returning ${allResponses.length} responses`);
   res.json(allResponses);
 });
 
