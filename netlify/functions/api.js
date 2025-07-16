@@ -177,23 +177,57 @@ app.post('/api/waitlist', async (req, res) => {
       
       // Send confirmation email
       try {
-        if (process.env.SENDGRID_API_KEY) {
+        if (process.env.SENDGRID_API_KEY && process.env.FROM_EMAIL) {
+          console.log('📧 Sending confirmation email...');
           const sgMail = require('@sendgrid/mail');
           sgMail.setApiKey(process.env.SENDGRID_API_KEY);
           
-          const msg = {
+          // Send welcome email to user
+          const welcomeMsg = {
             to: req.body.email,
-            from: process.env.FROM_EMAIL || 'noreply@ar-rahman.ai',
-            subject: 'Welcome to AR Rahman Waitlist!',
-            text: `Dear ${req.body.fullName}, thank you for joining our waitlist!`,
-            html: `<p>Dear ${req.body.fullName},</p><p>Thank you for joining the AR Rahman waitlist!</p>`
+            from: process.env.FROM_EMAIL,
+            subject: 'Welcome to AR Rahman - Your Journey Begins! 🌟',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #7c3aed;">As-salāmu ʿalaykum ${req.body.fullName}!</h2>
+                <p>Thank you for joining the AR Rahman waitlist! We're thrilled to have you on this spiritual journey.</p>
+                <p>You're now part of an exclusive community that will experience the future of Quranic prayer through augmented reality.</p>
+                <p>We'll keep you updated on our progress and notify you when AR Rahman is ready for early access.</p>
+                <p>Barakallahu feeki,<br>The AR Rahman Team</p>
+              </div>
+            `
           };
           
-          await sgMail.send(msg);
-          console.log(`✅ Email sent to ${req.body.email}`);
+          await sgMail.send(welcomeMsg);
+          console.log('✅ Welcome email sent successfully');
+          
+          // Send admin notification
+          if (process.env.ADMIN_EMAIL) {
+            const adminMsg = {
+              to: process.env.ADMIN_EMAIL,
+              from: process.env.FROM_EMAIL,
+              subject: `New AR Rahman Waitlist: ${req.body.fullName}`,
+              html: `
+                <h3>New Waitlist Submission</h3>
+                <p><strong>Name:</strong> ${req.body.fullName}</p>
+                <p><strong>Email:</strong> ${req.body.email}</p>
+                <p><strong>Role:</strong> ${req.body.role}</p>
+                <p><strong>Age:</strong> ${req.body.age}</p>
+                <p><strong>Prayer Frequency:</strong> ${req.body.prayerFrequency}</p>
+                <p><strong>Arabic Understanding:</strong> ${req.body.arabicUnderstanding}</p>
+                <p><strong>AR Interest:</strong> ${req.body.arInterest}</p>
+              `
+            };
+            
+            await sgMail.send(adminMsg);
+            console.log('✅ Admin notification sent successfully');
+          }
+          
+        } else {
+          console.log('⚠️ Email not configured - missing SENDGRID_API_KEY or FROM_EMAIL');
         }
       } catch (emailError) {
-        console.error('❌ Email failed:', emailError);
+        console.error('📧 Email sending failed:', emailError);
       }
       
       return res.json({ 
