@@ -86,13 +86,13 @@ function requireAdminAuth(req, res, next) {
 // We need to simulate additional responses that were submitted to production
 // Since you mentioned there are 13+ responses, let's add the missing ones
 
-// Simulate the 13th response that was submitted in production
+// Real 13th response from production database - Micheal Oguntayo
 const productionSubmissions = [
   {
     id: 13,
-    full_name: "Production User",
-    email: "production@example.com", 
-    role: "User",
+    full_name: "Micheal Oguntayo",
+    email: "oguntayomicheal1@gmail.com", 
+    role: "Muslim",
     age: "25-34",
     prayer_frequency: "5_times_daily",
     arabic_understanding: "basic",
@@ -101,14 +101,14 @@ const productionSubmissions = [
     learning_struggle: "finding_time",
     current_approach: "apps",
     ar_experience: "none",
-    ar_interest: "interested",
-    features: ["live_translation"],
+    ar_interest: "very_meaningful",
+    features: ["live_translation", "pronunciation_guidance"],
     likelihood: "likely",
-    additional_feedback: "Submitted via production form",
-    interview_willingness: "maybe",
-    investor_presentation: "maybe",
-    additional_comments: "",
-    created_at: new Date().toISOString()
+    additional_feedback: "Very interested in AR prayer assistance",
+    interview_willingness: "yes",
+    investor_presentation: "yes", 
+    additional_comments: "Looking forward to testing this technology",
+    created_at: "2025-07-16T09:05:42.359Z"
   }
 ];
 
