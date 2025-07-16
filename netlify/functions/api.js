@@ -535,16 +535,13 @@ app.get('/api/waitlist/responses', requireAdminAuth, async (req, res) => {
         ssl: { rejectUnauthorized: false }
       });
       
-      const result = await pool.query('SELECT * FROM waitlist_responses ORDER BY created_at DESC');
+      const result = await pool.query('SELECT * FROM waitlist_responses ORDER BY id DESC');
       const dbResponses = result.rows;
       
-      console.log(`Database returned ${dbResponses.length} responses including latest submissions`);
-      
-      if (dbResponses.length > 0) {
-        await pool.end();
-        return res.json(dbResponses);
-      }
+      console.log(`✅ Database returned ${dbResponses.length} responses including latest submissions`);
       await pool.end();
+      
+      return res.json(dbResponses);
     }
   } catch (dbError) {
     console.error('Database connection failed, using fallback:', dbError);
@@ -560,12 +557,30 @@ app.get('/api/waitlist/responses', requireAdminAuth, async (req, res) => {
   res.json(allResponses);
 });
 
-app.get('/api/waitlist/analytics', (req, res) => {
-  // Get all responses including new submissions
-  const allResponses = [
-    ...(global.additionalResponses || []),
-    ...baseResponses
-  ];
+app.get('/api/waitlist/analytics', async (req, res) => {
+  console.log('🔄 Analytics requested - fetching from database');
+  
+  let allResponses = [];
+  
+  try {
+    if (process.env.DATABASE_URL) {
+      console.log('📊 Fetching analytics data from database...');
+      const { Pool } = require('@neondatabase/serverless');
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+      
+      const result = await pool.query('SELECT * FROM waitlist_responses ORDER BY created_at DESC');
+      allResponses = result.rows;
+      
+      console.log(`📊 Database analytics: ${allResponses.length} total responses`);
+      await pool.end();
+    } else {
+      console.log('❌ No database, using fallback data for analytics');
+      allResponses = [...(global.additionalResponses || []), ...baseResponses];
+    }
+  } catch (error) {
+    console.error('Analytics database error:', error);
+    allResponses = [...(global.additionalResponses || []), ...baseResponses];
+  }
   
   const totalResponses = allResponses.length;
   

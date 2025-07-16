@@ -60,9 +60,16 @@ export function SimpleAdminDashboard() {
       console.log('🔄 Starting dashboard data load...');
       
       const [analyticsRes, responsesRes] = await Promise.all([
-        fetch('/api/waitlist/analytics', {
+        fetch('/api/waitlist/analytics?' + new URLSearchParams({
+          t: Date.now().toString()
+        }), {
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         }),
         fetch('/api/waitlist/responses?' + new URLSearchParams({
           t: Date.now().toString()
