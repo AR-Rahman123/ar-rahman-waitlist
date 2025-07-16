@@ -133,21 +133,21 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Prayer frequency distribution  
-      if (response.prayer_frequency) {
-        prayerFrequencyDistribution[response.prayer_frequency] = 
-          (prayerFrequencyDistribution[response.prayer_frequency] || 0) + 1;
+      if (response.prayerFrequency) {
+        prayerFrequencyDistribution[response.prayerFrequency] = 
+          (prayerFrequencyDistribution[response.prayerFrequency] || 0) + 1;
       }
 
       // Arabic understanding distribution
-      if (response.arabic_understanding) {
-        arabicUnderstandingDistribution[response.arabic_understanding] = 
-          (arabicUnderstandingDistribution[response.arabic_understanding] || 0) + 1;
+      if (response.arabicUnderstanding) {
+        arabicUnderstandingDistribution[response.arabicUnderstanding] = 
+          (arabicUnderstandingDistribution[response.arabicUnderstanding] || 0) + 1;
       }
 
       // AR interest distribution  
-      if (response.ar_interest) {
-        arInterestDistribution[response.ar_interest] = 
-          (arInterestDistribution[response.ar_interest] || 0) + 1;
+      if (response.arInterest) {
+        arInterestDistribution[response.arInterest] = 
+          (arInterestDistribution[response.arInterest] || 0) + 1;
       }
 
       // Features distribution
