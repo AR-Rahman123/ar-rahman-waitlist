@@ -193,7 +193,7 @@ app.post('/api/waitlist', async (req, res) => {
                 <p>Thank you for joining the AR Rahman waitlist! We're thrilled to have you on this spiritual journey.</p>
                 <p>You're now part of an exclusive community that will experience the future of Quranic prayer through augmented reality.</p>
                 <p>We'll keep you updated on our progress and notify you when AR Rahman is ready for early access.</p>
-                <p>Barakallahu feeki,<br>The AR Rahman Team</p>
+                <p>Barakallahu feekum,<br>The AR Rahman Team</p>
               </div>
             `
           };
