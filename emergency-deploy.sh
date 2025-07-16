@@ -1,20 +1,31 @@
 #!/bin/bash
-# Emergency deployment script to bypass git locks
 
-echo "🚨 EMERGENCY DEPLOYMENT: Bypassing git locks..."
+# Emergency deployment script to fix missing submissions in production
 
-# Force remove all git locks
-sudo rm -rf .git/index.lock .git/HEAD.lock .git/refs/heads/main.lock .git/objects/*/tmp_*
-sudo pkill -9 git
+echo "🚨 EMERGENCY DEPLOYMENT: Fixing missing Micheal Oguntayo and Yusha Malik submissions"
 
-# Wait a moment
-sleep 2
+# Check if changes exist
+echo "📋 Current git status:"
+git status --porcelain
 
-# Force add and commit
-git add -A
-git commit -m "EMERGENCY: Fix admin authentication for production deployment" --no-verify
-git push origin main --force --no-verify
+# Check current production API response
+echo "🔍 Current production API (first 3 responses):"
+curl -s https://ar-rahman.ai/api/waitlist/responses | head -200
 
-echo "✅ Emergency deployment completed!"
-echo "⏳ Wait 2-3 minutes for Netlify to build and deploy..."
-echo "🌐 Then test: https://ar-rahman.ai/admin"
+echo ""
+echo "📊 Production count:"
+curl -s https://ar-rahman.ai/api/waitlist/count
+
+echo ""
+echo "🎯 Database verification (local):"
+echo "SELECT id, full_name, email FROM waitlist_responses WHERE id >= 13 ORDER BY id DESC;" | npm run db:query 2>/dev/null || echo "Database query failed"
+
+echo ""
+echo "⚠️  To deploy the fix manually:"
+echo "1. git add ."
+echo "2. git commit -m 'EMERGENCY: Fix missing submissions - connect production to database'"
+echo "3. git push origin main"
+
+echo ""
+echo "🔧 The fix adds database connectivity to production admin responses endpoint"
+echo "📈 Expected result: Micheal Oguntayo and Yusha Malik (if exists) will appear in admin dashboard"
