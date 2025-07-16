@@ -69,10 +69,40 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWaitlistResponse(id: number): Promise<boolean> {
     try {
+      console.log(`🗑️ Attempting to delete waitlist response with ID: ${id}`);
+      
+      // First, check if the response exists
+      const existing = await db
+        .select()
+        .from(waitlistResponses)
+        .where(eq(waitlistResponses.id, id))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        console.log(`❌ No waitlist response found with ID: ${id}`);
+        return false;
+      }
+      
+      console.log(`✅ Found response: ${existing[0].fullName || existing[0].email}`);
+      
+      // Now delete it
       const result = await db
         .delete(waitlistResponses)
         .where(eq(waitlistResponses.id, id));
-      return true;
+      
+      console.log(`🗑️ Delete result:`, result);
+      
+      // Verify deletion
+      const verifyDeleted = await db
+        .select()
+        .from(waitlistResponses)
+        .where(eq(waitlistResponses.id, id))
+        .limit(1);
+      
+      const success = verifyDeleted.length === 0;
+      console.log(`✅ Deletion ${success ? 'successful' : 'failed'} for ID: ${id}`);
+      
+      return success;
     } catch (error) {
       console.error("Error deleting waitlist response:", error);
       return false;
