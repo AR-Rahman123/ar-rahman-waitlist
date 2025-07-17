@@ -740,6 +740,71 @@ app.get('/api/waitlist/analytics', async (req, res) => {
   });
 });
 
+// DELETE endpoint for waitlist responses
+app.delete('/api/waitlist/:id', requireAdminAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    // Try to delete from database first
+    if (process.env.DATABASE_URL) {
+      try {
+        const { Pool } = require('pg');
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        
+        // Check if record exists
+        const existingResult = await pool.query('SELECT id, full_name, email FROM waitlist_responses WHERE id = $1', [id]);
+        if (existingResult.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Response not found' });
+        }
+        
+        console.log(`✅ Found response: ${existingResult.rows[0].full_name || existingResult.rows[0].email}`);
+        
+        // Delete from database
+        const deleteResult = await pool.query('DELETE FROM waitlist_responses WHERE id = $1', [id]);
+        
+        if (deleteResult.rowCount > 0) {
+          console.log(`✅ Successfully deleted response ID: ${id}`);
+          return res.json({ success: true, message: 'Response deleted successfully' });
+        } else {
+          return res.status(404).json({ success: false, message: 'Response not found' });
+        }
+        
+      } catch (dbError) {
+        console.error('❌ Database deletion error:', dbError);
+        return res.status(500).json({ success: false, message: 'Database error during deletion' });
+      }
+    }
+    
+    // Fallback to in-memory deletion for serverless compatibility
+    if (!global.additionalResponses) {
+      global.additionalResponses = [];
+    }
+    
+    // Try to remove from additional responses
+    const initialLength = global.additionalResponses.length;
+    global.additionalResponses = global.additionalResponses.filter(r => r.id !== id);
+    
+    if (global.additionalResponses.length < initialLength) {
+      console.log(`✅ Successfully deleted response ID: ${id} from additional responses`);
+      return res.json({ success: true, message: 'Response deleted successfully' });
+    }
+    
+    // Try to remove from base responses (for testing)
+    const baseIndex = baseResponses.findIndex(r => r.id === id);
+    if (baseIndex !== -1) {
+      baseResponses.splice(baseIndex, 1);
+      console.log(`✅ Successfully deleted response ID: ${id} from base responses`);
+      return res.json({ success: true, message: 'Response deleted successfully' });
+    }
+    
+    return res.status(404).json({ success: false, message: 'Response not found' });
+    
+  } catch (error) {
+    console.error('❌ Delete operation failed:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete response' });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
